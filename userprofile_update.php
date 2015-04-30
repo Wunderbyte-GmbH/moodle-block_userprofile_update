@@ -225,15 +225,16 @@ if ($confirmuser and confirm_sesskey()) {
 else if ($usernew = $userform->get_data()) {
 	
     $usernew->id = $usernew->userid;
-    // check if user has right to edit the user
-    if(!has_capability('moodle/site:config', $context) ){
-    	if(!($groupmembersonly || $patternmatchonly)){
-    		echo $OUTPUT->header();
-    		echo $OUTPUT->error_text('Invalid access');
-    		echo $OUTPUT->continue_button($url);
-    		echo $OUTPUT->footer();
-    		die;
-    	} else if ($patternmatchonly) {
+		// check if user has right to edit the user
+	if (! has_capability ( 'moodle/site:config', $context )) {
+		if (! ($groupmembersonly || $patternmatchonly)) {
+			echo $OUTPUT->header ();
+			echo $OUTPUT->error_text ( 'Invalid access' );
+			echo $OUTPUT->continue_button ( $url );
+			echo $OUTPUT->footer ();
+			die ();
+		}
+		if ($patternmatchonly) {
 			$allowedusers = block_userprofile_update_get_matchingusers ( $USER->username );
 			$alloweduserids = array_keys ( $allowedusers );
 			if (! (in_array ( $usernew->id, $alloweduserids ))) {
@@ -243,25 +244,26 @@ else if ($usernew = $userform->get_data()) {
 				echo $OUTPUT->footer ();
 				die ();
 			}
-		} else if ($groupmembersonly) {
+		}
+		if ($groupmembersonly) {
 			$editingallowed = false;
 			$groupsofuser = groups_get_all_groups ( $courseid, $USER->id );
 			if (! empty ( $groupsofuser )) {
 				foreach ( $groupsofuser as $group ) {
-					if ( groups_is_member($group->id, $usernew->id)){
+					if (groups_is_member ( $group->id, $usernew->id )) {
 						$editingallowed = true;
 					}
 				}
 			}
-			if(!$editingallowed){
+			if (! $editingallowed) {
 				echo $OUTPUT->header ();
 				echo $OUTPUT->error_text ( 'Invalid access' );
 				echo $OUTPUT->continue_button ( $url );
 				echo $OUTPUT->footer ();
-				die ();				
+				die ();
 			}
 		}
-    }
+	}
     $usercreated = false;
     
     if (empty($usernew->auth)) {
