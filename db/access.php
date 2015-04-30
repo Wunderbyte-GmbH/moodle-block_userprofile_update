@@ -27,17 +27,25 @@
 defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
-
     'block/userprofile_update:addinstance' => array(
+    	'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(),
-        'clonepermissionsfrom' => 'moodle/site:manageblocks'
+        'archetypes' => array(
+        	'manager' => CAP_ALLOW
+        ),
+    	'clonepermissionsfrom' => 'moodle/site:manageblocks'
     ),
     'block/userprofile_update:updateuserprofile' => array(
-      'riskbitmask'  =>  RISK_PERSONAL,
+      'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
       'captype' => 'write',
-      'contextlevel' => CONTEXT_BLOCK,
+      'contextlevel' => CONTEXT_COURSE,
       'archetypes' => array()
     ),
+	'block/userprofile_update:createuser' => array(
+			'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+			'captype' => 'write',
+			'contextlevel' => CONTEXT_COURSE,
+			'archetypes' => array()
+	),
 );

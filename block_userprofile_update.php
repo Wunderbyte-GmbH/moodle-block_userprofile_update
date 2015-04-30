@@ -61,6 +61,6 @@ class block_userprofile_update extends block_base {
     }
 
     public function has_config() {
-        return false;
+        return true;
     }
 }

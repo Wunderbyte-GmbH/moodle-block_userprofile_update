@@ -27,5 +27,11 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-  
+	$name = 'block_userprofile_update/showonlygroupmembers';
+	$setting = new admin_setting_configcheckbox($name, get_string('showonlygroupmembers', 'block_userprofile_update'), get_string('showonlygroupmembersdesc', 'block_userprofile_update'), 0);
+	$settings->add($setting);
+	$name = 'block_userprofile_update/showonlymatchingusers';
+	$setting = new admin_setting_configcheckbox($name, get_string('showonlymatchingusers', 'block_userprofile_update'), get_string('showonlymatchingusersdesc', 'block_userprofile_update'), 0);
+	$settings->add($setting);
 }
+

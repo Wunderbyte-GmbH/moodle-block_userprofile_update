@@ -26,9 +26,12 @@
 
 require_once('../../config.php');
 require_once('userprofile_update_form.php');
+require_once('lib.php');
 require_once($CFG->libdir.'/adminlib.php');
 require_once($CFG->libdir.'/authlib.php');
 require_once($CFG->dirroot.'/user/filters/lib.php');
+require_once($CFG->dirroot.'/user/lib.php');
+
 
 $courseid     = required_param('courseid', PARAM_INT);
 $parentcontextid = required_param('parentcontextid', PARAM_INT);
@@ -71,6 +74,8 @@ if($coursecontext->id != $parentcontextid){
 }
 
 $header = get_string('userprofile_update:updateuserprofile', 'block_userprofile_update');
+$groupmembersonly = get_config('block_userprofile_update', 'showonlygroupmembers'); 
+$patternmatchonly = get_config('block_userprofile_update', 'showonlymatchingusers');
 
 $stredit   = get_string('edit');
 $strdelete = get_string('delete');
@@ -80,10 +85,20 @@ $strsuspend = get_string('suspenduser', 'admin');
 $strunsuspend = get_string('unsuspenduser', 'admin');
 $strunlock = get_string('unlockaccount', 'admin');
 $strconfirm = get_string('confirm');
-$userform = new block_userprofile_update_form(null, array('userid' => $userid,'parentcontextid' => $parentcontextid,'courseid'=>$courseid));
-if ($userid != 0) {
+if ($userid > 0) {
     $user = $DB->get_record('user', array('id'=>$userid), '*', MUST_EXIST);
+    $userform = new block_userprofile_update_form(null, array('userid' => $userid,'parentcontextid' => $parentcontextid,'courseid'=>$courseid, 'username' => $user->username));
     $userform->set_data($user);
+} else if ($userid == -1) {
+	$user = new stdClass();
+	$user->id = -1;
+	$user->auth = 'manual';
+	$user->confirmed = 1;
+	$user->deleted = 0;
+	$userform = new block_userprofile_update_form(null, array('userid' => $userid,'parentcontextid' => $parentcontextid,'courseid'=>$courseid, 'username' => block_userprofile_update_create_username($USER) ));
+	$userform->set_data($user);
+} else {
+	$userform = new block_userprofile_update_form(null, array('userid' => $userid,'parentcontextid' => $parentcontextid,'courseid'=>$courseid, 'username' => block_userprofile_update_create_username($USER) ));
 }
 
 if (empty($CFG->loginhttps)) {
@@ -98,7 +113,7 @@ if ($userform->is_cancelled()) {
 }
 
 if ($confirmuser and confirm_sesskey()) {
-    require_capability('block/userprofile_update:updateuserprofile', $context);
+    require_capability('block/userprofile_update:updateuserprofile', $coursecontext);
     if (!$user = $DB->get_record('user', array('id'=>$confirmuser, 'mnethostid'=>$CFG->mnet_localhost_id))) {
         print_error('nousers');
     }
@@ -208,25 +223,102 @@ if ($confirmuser and confirm_sesskey()) {
     redirect($returnurl);
 } 
 else if ($usernew = $userform->get_data()) {
-    
-    add_to_log($courseid, 'user', 'update', "view.php?id=$userid&course=$courseid", '');
+	
     $usernew->id = $usernew->userid;
-    $usertoupdate = $DB->get_record('user', array('id'=>$usernew->userid));
+    // check if user has right to edit the user
+    if(!has_capability('moodle/site:config', $context) ){
+    	if(!($groupmembersonly || $patternmatchonly)){
+    		echo $OUTPUT->header();
+    		echo $OUTPUT->error_text('Invalid access');
+    		echo $OUTPUT->continue_button($url);
+    		echo $OUTPUT->footer();
+    		die;
+    	} else if ($patternmatchonly) {
+			$allowedusers = block_userprofile_update_get_matchingusers ( $USER->username );
+			$alloweduserids = array_keys ( $allowedusers );
+			if (! (in_array ( $usernew->id, $alloweduserids ))) {
+				echo $OUTPUT->header ();
+				echo $OUTPUT->error_text ( 'Invalid access' );
+				echo $OUTPUT->continue_button ( $url );
+				echo $OUTPUT->footer ();
+				die ();
+			}
+		} else if ($groupmembersonly) {
+			$editingallowed = false;
+			$groupsofuser = groups_get_all_groups ( $courseid, $USER->id );
+			if (! empty ( $groupsofuser )) {
+				foreach ( $groupsofuser as $group ) {
+					if ( groups_is_member($group->id, $usernew->id)){
+						$editingallowed = true;
+					}
+				}
+			}
+			if(!$editingallowed){
+				echo $OUTPUT->header ();
+				echo $OUTPUT->error_text ( 'Invalid access' );
+				echo $OUTPUT->continue_button ( $url );
+				echo $OUTPUT->footer ();
+				die ();				
+			}
+		}
+    }
+    $usercreated = false;
     
-    $usertoupdate->timemodified = time();
-    $usertoupdate->firstname = $usernew->firstname;
-    $usertoupdate->lastname = $usernew->lastname;
-    $usertoupdate->email = $usernew->email;
-    $usertoupdate->password = hash_internal_user_password($usernew->newpassword);
-
-    $DB->update_record('user', $usertoupdate);
+    if (empty($usernew->auth)) {
+    	// User editing self.
+    	$authplugin = get_auth_plugin($user->auth);
+    	unset($usernew->auth); // Can not change/remove.
+    } else {
+    	$authplugin = get_auth_plugin($usernew->auth);
+    }
+    $usernew->timemodified = time();
+    
+    if($usernew->id == -1){
+    	if($DB->record_exists('user', array('username' => $usernew->username))){
+    		echo $OUTPUT->header();
+    		echo $OUTPUT->error_text('Username exists already');
+    		echo $OUTPUT->continue_button($url);
+    		echo $OUTPUT->footer();
+    		die;
+    	}
+    	unset($usernew->id);
+    	$createpassword = !empty($usernew->createpassword);
+    	unset($usernew->createpassword);
+    	$usernew->mnethostid = $CFG->mnet_localhost_id; // Always local user.
+    	$usernew->confirmed  = 1;
+    	$usernew->timecreated = time();
+    	if ($authplugin->is_internal()) {
+    		if ($createpassword or empty($usernew->newpassword)) {
+    			$usernew->password = '';
+    		} else {
+    			$usernew->password = hash_internal_user_password($usernew->newpassword);
+    		}
+    	} else {
+    		$usernew->password = AUTH_PASSWORD_NOT_CACHED;
+    	}
+    	$usernew->confirmed = 1;
+    	$usernew->id = user_create_user($usernew, false, false);
+    	$usercreated = true;
+    } else {
+    	$usertoupdate = $DB->get_record('user', array('id'=>$usernew->userid));
+    	$usertoupdate->timemodified = time();
+    	$usertoupdate->firstname = $usernew->firstname;
+    	$usertoupdate->lastname = $usernew->lastname;
+    	$usertoupdate->email = $usernew->email;
+    	$usertoupdate->password = hash_internal_user_password($usernew->newpassword);
+    	$DB->update_record('user', $usertoupdate);
+    }
 
     // save custom profile fields data
     profile_save_data($usernew);
 
     // reload from db
-    $usernew = $DB->get_record('user', array('id'=>$usernew->userid));
-    events_trigger('user_updated', $usernew);
+    $usernew = $DB->get_record('user', array('id'=>$usernew->id));
+    if ($usercreated) {
+    	\core\event\user_created::create_from_userid($usernew->id)->trigger();
+    } else {
+    	\core\event\user_updated::create_from_userid($usernew->id)->trigger();
+    }
     redirect($url, get_string('changessaved'));
 } 
 
@@ -235,12 +327,17 @@ $ufiltering = new user_filtering(null,$url);
 
 echo $OUTPUT->header();
 
-if ($userid != 0) {
+if ($userid > 0) {
     $user = $DB->get_record('user', array('id'=>$userid), '*', MUST_EXIST);
     $userform->set_data($user);
     $userform->display();
     echo $OUTPUT->footer();
     exit();
+} else if ($userid === -1){
+	$userform->set_data($user);
+	$userform->display();
+	echo $OUTPUT->footer();
+	exit();
 }
 // Carry on with the user listing
 $context = context_system::instance();
@@ -290,28 +387,44 @@ if (($CFG->fullnamedisplay == 'firstname lastname') or
         $sort = "lastname";
     }
 }
-
+// default: do not show any users
+$displayuserssql = ' id = 0 ';
 // check group members of user who has capability to edit user profiles in this course and collect them in array
-$memberids = array();
 if(has_capability('block/userprofile_update:updateuserprofile', $coursecontext)){
-    $groupsofuser = groups_get_all_groups($courseid, $USER->id);
-    if(!empty($groupsofuser)){
-       foreach ($groupsofuser as $group){
-          $groupmemberids[$group->id] = groups_get_members($group->id,'u.id');
-          $memberids = array_keys($groupmemberids[$group->id]);
-       }
+	$allmembers = array();
+	if ($groupmembersonly) {
+		$groupsofuser = groups_get_all_groups ( $courseid, $USER->id );
+		$memberidasstring = '';
+		$allmembers = array ();
+		if (! empty ( $groupsofuser )) {
+			foreach ( $groupsofuser as $group ) {
+				$groupmemberids [$group->id] = groups_get_members ( $group->id, 'u.id' );
+				if (! empty ( $groupmemberids [$group->id] )) {
+					foreach ( $groupmemberids [$group->id] as $id => $value ) {
+						$allmembers [$id] = $id;
+					}
+				}
+			}
+		}
+	}
+    if($patternmatchonly){
+    	$matchingusers = block_userprofile_update_get_matchingusers($USER->username);
+    	if(!empty($matchingusers)){
+    		foreach ($matchingusers as $id => $value){
+    			$allmembers [$id] = $id;
+    		}
+    	}
     }
 }
 
-// do not display any users if the user is not member of any group
-if(has_capability('moodle/site:config', $context)){
- $displayuserssql = '';
-} else if(!empty($memberids)) {
- $memberidasstring = implode(',', $memberids);
- $displayuserssql = ' id IN ('.$memberidasstring.')';
-} else {
- $displayuserssql = ' id = 0 ';
+if (! empty ( $allmembers )) {
+	$useridsasstring = implode ( ',', $allmembers );
+	$displayuserssql = ' id IN (' . $useridsasstring . ')';
 }
+
+if (has_capability ( 'moodle/site:config', $context )) {
+	$displayuserssql = '';
+} 
 
 
 list($extrasql, $params) = $ufiltering->get_sql_filter($displayuserssql);
@@ -406,7 +519,7 @@ if (!$users) {
         }
 
         // suspend button
-        if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
+        if (has_capability('block/userprofile_update:updateuserprofile', $context)) {
             if (is_mnet_remote_user($user)) {
                 // mnet users have special access control, they can not be deleted the standard way or suspended
                 $accessctrl = 'allow';
@@ -452,7 +565,8 @@ if (!$users) {
 
         } else if ($user->confirmed == 0) {
             if (has_capability('moodle/user:update', $context)) {
-                $lastcolumn = html_writer::link(new moodle_url($returnurl, array('confirmuser'=>$user->id, 'sesskey'=>sesskey())), $strconfirm);
+            	$userediturl = '/admin/user.php';
+                $lastcolumn = html_writer::link(new moodle_url($userediturl, array('confirmuser'=>$user->id, 'sesskey'=>sesskey())), $strconfirm);
             } else {
                 $lastcolumn = "<span class=\"dimmed_text\">".get_string('confirm')."</span>";
             }
@@ -489,17 +603,17 @@ if (!$users) {
 $ufiltering->display_add();
 $ufiltering->display_active();
 
-if (has_capability('moodle/user:create', $context)) {
-    echo $OUTPUT->heading('<a href="'.$securewwwroot.'/user/editadvanced.php?id=-1">'.get_string('addnewuser').'</a>');
+if (has_capability('block/userprofile_update:createuser', $coursecontext)) {
+    echo $OUTPUT->heading('<a href="' . $url->out(true, array('userid' => -1)) .'" >'.get_string('addnewuser').'</a>');
 }
 if (!empty($table)) {
     echo html_writer::start_tag('div', array('class'=>'no-overflow'));
     echo html_writer::table($table);
     echo html_writer::end_tag('div');
     echo $OUTPUT->paging_bar($usercount, $page, $perpage, $baseurl);
-    if (has_capability('moodle/user:create', $context)) {
-        echo $OUTPUT->heading('<a href="'.$securewwwroot.'/user/editadvanced.php?id=-1">'.get_string('addnewuser').'</a>');
-    }
+	if (has_capability('block/userprofile_update:createuser', $coursecontext)) {
+	    echo $OUTPUT->heading('<a href="' . $url->out(true, array('userid' => -1)) .'" >'.get_string('addnewuser').'</a>');
+	}
 }
 
 echo $OUTPUT->footer();

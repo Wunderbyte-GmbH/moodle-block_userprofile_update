@@ -13,19 +13,29 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
-
+ 
 /**
- * Version information
+ * The userprofile_updated event.
  *
- * @package    block
- * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @package    block_userprofile_update
+ * @copyright  2015 edulabs.org - David Bogner
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
-$plugin->version = 2015042806;// The current plugin version (Date: YYYYMMDDXX).
-$plugin->release = '1.0 (2014030900)';
-$plugin->cron = 0;
-$plugin->maturity = MATURITY_STABLE;
-$plugin->requires  = 2013051400;
+namespace block_userprofile_update\event;
+defined('MOODLE_INTERNAL') || die();
+/**
+ * The userprofile_updated event class.
+ *
+ * @property-read array $other {
+ *      Extra information about event.
+ *
+ *      The userprofile was updated.
+ * }
+ *
+ * @since     Moodle 2.7
+ * @copyright 2015 David Bogner
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ **/
+class user_updated extends \core\event\user_updated {
+    // No need to override any method.
+}
