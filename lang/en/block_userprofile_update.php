@@ -29,6 +29,7 @@ $string['title'] = 'Userprofile update';
 $string['userprofile_update:addinstance'] = 'Add userprofile update block';
 $string['userprofile_update:updateuserprofile'] = 'Update user profiles';
 $string['userprofile_update:createuser'] = 'Create new user';
+$string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
 
 $string['save_changes'] = 'Save changes';
 $string['saved'] = 'Changes saved';

@@ -30,6 +30,7 @@ $string['title'] = 'Nutzerprofiländerung';
 $string['userprofile_update:addinstance'] = 'Block Nutzerprofiländerung hinzufügen';
 $string['userprofile_update:updateuserprofile'] = 'Nutzerprofildaten bearbeiten';
 $string['userprofile_update:createuser'] = 'Neue Nutzer/in anlegen';
+$string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
 
 $string['save_changes'] = 'Änderungen speichern';
 $string['saved'] = 'Änderungen gespeichert';

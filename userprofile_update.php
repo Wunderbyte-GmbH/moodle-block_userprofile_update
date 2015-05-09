@@ -416,7 +416,6 @@ $columns = array_merge ( array (
 ), $extracolumns, array (
 		'city',
 		'country',
-		'lastaccess' 
 ) );
 
 foreach ( $columns as $column ) {
@@ -559,8 +558,8 @@ if (! $users) {
 	$table->colclasses [] = 'leftalign';
 	$table->head [] = $country;
 	$table->colclasses [] = 'leftalign';
-	$table->head [] = $lastaccess;
-	$table->colclasses [] = 'leftalign';
+	//$table->head [] = $lastaccess;
+	//$table->colclasses [] = 'leftalign';
 	$table->head [] = get_string ( 'edit' );
 	$table->colclasses [] = 'centeralign';
 	$table->head [] = get_string ( 'suspenduser', 'admin' );
@@ -596,7 +595,7 @@ if (! $users) {
 		}
 		
 		// suspend button
-		if (has_capability ( 'block/userprofile_update:updateuserprofile', $context )) {
+		if (has_capability ( 'block/userprofile_update:suspenduser', $coursecontext )) {
 			if (is_mnet_remote_user ( $user )) {
 				// mnet users have special access control, they can not be deleted the standard way or suspended
 				$accessctrl = 'allow';
@@ -702,7 +701,7 @@ if (! $users) {
 		}
 		$row [] = $user->city;
 		$row [] = $user->country;
-		$row [] = $strlastaccess;
+		//$row [] = $strlastaccess;
 		if ($user->suspended) {
 			foreach ( $row as $k => $v ) {
 				$row [$k] = html_writer::tag ( 'span', $v, array (

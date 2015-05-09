@@ -48,4 +48,10 @@ $capabilities = array(
 			'contextlevel' => CONTEXT_COURSE,
 			'archetypes' => array()
 	),
+	'block/userprofile_update:suspenduser' => array(
+			'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+			'captype' => 'write',
+			'contextlevel' => CONTEXT_COURSE,
+			'archetypes' => array()
+	),
 );
