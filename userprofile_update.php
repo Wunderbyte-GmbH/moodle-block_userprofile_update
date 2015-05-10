@@ -695,7 +695,7 @@ if (! $users) {
 		$fullname = fullname ( $user, true );
 		
 		$row = array ();
-		$row [] = "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>";
+		$row [] = $fullname; //"<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>";
 		foreach ( $extracolumns as $field ) {
 			$row [] = $user->{$field};
 		}
