@@ -24,7 +24,7 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2015050901;// The current plugin version (Date: YYYYMMDDXX).
+$plugin->version = 2015051000;// The current plugin version (Date: YYYYMMDDXX).
 $plugin->release = '1.0 (2014030900)';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;

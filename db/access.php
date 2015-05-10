@@ -31,10 +31,7 @@ $capabilities = array(
     	'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array(
-        	'manager' => CAP_ALLOW
-        ),
-    	'clonepermissionsfrom' => 'moodle/site:manageblocks'
+        'archetypes' => array()
     ),
     'block/userprofile_update:updateuserprofile' => array(
       'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
