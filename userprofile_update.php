@@ -243,8 +243,8 @@ if ($confirmuser and confirm_sesskey ()) {
 					'id' => $user->id 
 			) );
 			// force logout
-			session_kill_user ( $user->id );
-			events_trigger ( 'user_updated', $user );
+			\core\session\manager::kill_user_sessions( $user->id );
+			\core\event\user_updated::create_from_userid ( $user->id )->trigger ();
 		}
 	}
 	redirect ( $returnurl );
@@ -265,7 +265,7 @@ if ($confirmuser and confirm_sesskey ()) {
 			$DB->set_field ( 'user', 'timemodified', $user->timemodified, array (
 					'id' => $user->id 
 			) );
-			events_trigger ( 'user_updated', $user );
+			\core\event\user_updated::create_from_userid ( $user->id )->trigger ();
 		}
 	}
 	redirect ( $returnurl );
