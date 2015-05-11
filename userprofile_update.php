@@ -96,7 +96,8 @@ if ($userid > 0) {
 			'userid' => $userid,
 			'parentcontextid' => $parentcontextid,
 			'courseid' => $courseid,
-			'username' => $user->username 
+			'username' => $user->username,
+			'firstname' => $user->firstname 
 	) );
 	$userform->set_data ( $user );
 } else if ($userid == - 1) {
@@ -109,7 +110,8 @@ if ($userid > 0) {
 			'userid' => $userid,
 			'parentcontextid' => $parentcontextid,
 			'courseid' => $courseid,
-			'username' => block_userprofile_update_create_username ( $USER ) 
+			'username' => block_userprofile_update_create_username ( $USER ),
+			'firstname' => $USER->firstname
 	) );
 	$userform->set_data ( $user );
 } else {
@@ -223,7 +225,7 @@ if ($confirmuser and confirm_sesskey ()) {
 	$mnethosts = $DB->get_records ( 'mnet_host', null, 'id', 'id,wwwroot,name' );
 	redirect ( $returnurl );
 } else if ($suspend and confirm_sesskey ()) {
-	require_capability ( 'moodle/user:update', $context );
+	require_capability ( 'block/userprofile_update:suspenduser', $coursecontext );
 	
 	if ($user = $DB->get_record ( 'user', array (
 			'id' => $suspend,
@@ -246,7 +248,7 @@ if ($confirmuser and confirm_sesskey ()) {
 	}
 	redirect ( $returnurl );
 } else if ($unsuspend and confirm_sesskey ()) {
-	require_capability ( 'moodle/user:update', $context );
+	require_capability ( 'block/userprofile_update:suspenduser', $coursecontext );
 	
 	if ($user = $DB->get_record ( 'user', array (
 			'id' => $unsuspend,
@@ -377,6 +379,10 @@ if ($confirmuser and confirm_sesskey ()) {
 	$usernew = $DB->get_record ( 'user', array (
 			'id' => $usernew->id 
 	) );
+	set_user_preference('auth_forcepasswordchange', 1, $usernew);
+	set_user_preference('city', get_user_preferences('city',null,$USER), $usernew);
+	set_user_preference('country', get_user_preferences('country',null,$USER), $usernew);
+	
 	if ($usercreated) {
 		\core\event\user_created::create_from_userid ( $usernew->id )->trigger ();
 	} else {

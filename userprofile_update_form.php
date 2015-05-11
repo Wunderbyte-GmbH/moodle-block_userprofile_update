@@ -65,9 +65,9 @@ class block_userprofile_update_form extends moodleform {
         $mform->addElement('header', 'moodle', $strgeneral);
 
         $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>'.get_string('username').'</label></div><div class="felement ftext">'.$this->_customdata['username'].'</div></div>');
-
-        $mform->addElement('text', 'firstname', get_string('firstname'), 'maxlength="100" size="30"');
-        $mform->addRule('firstname', $strrequired, 'required', null, 'client');
+        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>'.get_string('firstname').'</label></div><div class="felement ftext">'.$this->_customdata['firstname'].'</div></div>');
+        
+        $mform->addElement('hidden', 'firstname', $this->_customdata['firstname']);
         $mform->setType('firstname', PARAM_NOTAGS);
         
         $mform->addElement('text', 'lastname',  get_string('lastname'),  'maxlength="100" size="30"');
