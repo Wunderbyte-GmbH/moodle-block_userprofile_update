@@ -119,7 +119,8 @@ if ($userid > 0) {
 			'userid' => $userid,
 			'parentcontextid' => $parentcontextid,
 			'courseid' => $courseid,
-			'username' => block_userprofile_update_create_username ( $USER ) 
+			'username' => block_userprofile_update_create_username ( $USER ),
+			'firstname' => $USER->firstname
 	) );
 }
 
