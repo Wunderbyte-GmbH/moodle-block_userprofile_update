@@ -349,6 +349,8 @@ if ($confirmuser and confirm_sesskey ()) {
 		$usernew->mnethostid = $CFG->mnet_localhost_id; // Always local user.
 		$usernew->confirmed = 1;
 		$usernew->timecreated = time ();
+		$usernew->city = $USER->city;
+		$usernew->country = $USER->country;
 		if ($authplugin->is_internal ()) {
 			if ($createpassword or empty ( $usernew->newpassword )) {
 				$usernew->password = '';
@@ -381,8 +383,6 @@ if ($confirmuser and confirm_sesskey ()) {
 			'id' => $usernew->id 
 	) );
 	set_user_preference('auth_forcepasswordchange', 1, $usernew);
-	set_user_preference('city', get_user_preferences('city',null,$USER), $usernew);
-	set_user_preference('country', get_user_preferences('country',null,$USER), $usernew);
 	
 	if ($usercreated) {
 		\core\event\user_created::create_from_userid ( $usernew->id )->trigger ();
