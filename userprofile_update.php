@@ -351,6 +351,7 @@ if ($confirmuser and confirm_sesskey ()) {
 		$usernew->timecreated = time ();
 		$usernew->city = $USER->city;
 		$usernew->country = $USER->country;
+		$usernew->lang = 'de';
 		if ($authplugin->is_internal ()) {
 			if ($createpassword or empty ( $usernew->newpassword )) {
 				$usernew->password = '';
