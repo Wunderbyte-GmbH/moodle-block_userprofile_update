@@ -24,19 +24,16 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-if (!defined('MOODLE_INTERNAL')) {
-    die('Direct access to this script is forbidden.');    //  It must be included from a Moodle page.
-}
+defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/formslib.php');
-require_once($CFG->dirroot.'/user/profile/lib.php');
-
+require_once($CFG->libdir . '/formslib.php');
+require_once($CFG->dirroot . '/user/profile/lib.php');
 
 class block_userprofile_update_form extends moodleform {
 
     public function definition() {
-        global $CFG,$DB;
-        $strgeneral  = get_string('general');
+        global $CFG, $DB;
+        $strgeneral = get_string('general');
         $strrequired = get_string('required');
         $mform =& $this->_form;
 
@@ -60,36 +57,36 @@ class block_userprofile_update_form extends moodleform {
         $mform->setType('userid', PARAM_INT);
         $mform->addElement('hidden', 'username', $this->_customdata['username']);
         $mform->setType('username', PARAM_USERNAME);
-        
-        
+
         $mform->addElement('header', 'moodle', $strgeneral);
 
-        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>'.get_string('username').'</label></div><div class="felement ftext">'.$this->_customdata['username'].'</div></div>');
-        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>'.get_string('firstname').'</label></div><div class="felement ftext">'.$this->_customdata['firstname'].'</div></div>');
-        
+        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>' . get_string('username') .
+            '</label></div><div class="felement ftext">' . $this->_customdata['username'] . '</div></div>');
+        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>' . get_string('firstname') .
+            '</label></div><div class="felement ftext">' . $this->_customdata['firstname'] . '</div></div>');
+
         $mform->addElement('hidden', 'firstname', $this->_customdata['firstname']);
         $mform->setType('firstname', PARAM_NOTAGS);
-        
-        $mform->addElement('text', 'lastname',  get_string('lastname'),  'maxlength="100" size="30"');
+
+        $mform->addElement('text', 'lastname', get_string('lastname'), 'maxlength="100" size="30"');
         $mform->addRule('lastname', $strrequired, 'required', null, 'client');
         $mform->setType('lastname', PARAM_NOTAGS);
 
         $mform->addElement('text', 'email', get_string('email'), 'maxlength="100" size="30"');
         $mform->addRule('email', $strrequired, 'required', null, 'client');
         $mform->setType('email', PARAM_EMAIL);
-        
-        if (!empty($CFG->passwordpolicy)){
+
+        if (!empty($CFG->passwordpolicy)) {
             $mform->addElement('static', 'passwordpolicyinfo', '', print_password_policy());
         }
         $mform->addElement('passwordunmask', 'newpassword', get_string('newpassword'), 'size="20"');
         $mform->addHelpButton('newpassword', 'newpassword');
         $mform->setType('newpassword', PARAM_RAW);
-        
-        
+
         if ($categories = $DB->get_records('user_info_category', null, 'sortorder ASC')) {
             foreach ($categories as $category) {
-                if ($fields = $DB->get_records('user_info_field', array('categoryid'=>$category->id), 'sortorder ASC')) {
-        
+                if ($fields = $DB->get_records('user_info_field', array('categoryid' => $category->id), 'sortorder ASC')) {
+
                     // check first if *any* fields will be displayed
                     $display = false;
                     foreach ($fields as $field) {
@@ -97,13 +94,13 @@ class block_userprofile_update_form extends moodleform {
                             $display = true;
                         }
                     }
-        
+
                     // display the header and the fields
                     if ($display) {
-                        $mform->addElement('header', 'category_'.$category->id, format_string($category->name));
+                        $mform->addElement('header', 'category_' . $category->id, format_string($category->name));
                         foreach ($fields as $field) {
-                            require_once($CFG->dirroot.'/user/profile/field/'.$field->datatype.'/field.class.php');
-                            $newfield = 'profile_field_'.$field->datatype;
+                            require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
+                            $newfield = 'profile_field_' . $field->datatype;
                             $formfield = new $newfield($field->id, $userid);
                             $formfield->edit_field($mform);
                             $mform->setDefault($formfield->inputname, $formfield->display_data());
@@ -118,9 +115,9 @@ class block_userprofile_update_form extends moodleform {
     }
 
     public function definition_after_data() {
-        global $CFG,$DB;
+        global $CFG, $DB;
         $mform =& $this->_form;
-        
+
         $userid = $mform->getElementValue('userid');
         $usernew = $DB->get_record('user', array('id' => $userid));
         if ($mform->isSubmitted()) {
@@ -131,28 +128,28 @@ class block_userprofile_update_form extends moodleform {
 
     function validation($usernew, $files) {
         global $CFG, $DB;
-        
-        $usernew = (object)$usernew;
+
+        $usernew = (object) $usernew;
         $usernew->id = $usernew->userid;
-         
-        $user = $DB->get_record('user', array('id'=>$usernew->userid));
+
+        $user = $DB->get_record('user', array('id' => $usernew->userid));
         $err = array();
-         
+
         if (!$user or $user->email !== $usernew->email) {
             if (!validate_email($usernew->email)) {
                 $err['email'] = get_string('invalidemail');
             }
         }
-        
+
         if (!empty($usernew->newpassword)) {
             $errmsg = '';//prevent eclipse warning
             if (!check_password_policy($usernew->newpassword, $errmsg)) {
                 $err['newpassword'] = $errmsg;
             }
         }
-         
+
         $err += profile_validation($usernew, $files);
-        
+
         return $err;
 
     }
