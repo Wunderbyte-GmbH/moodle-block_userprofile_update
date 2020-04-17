@@ -24,9 +24,9 @@
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2017010100;// Due to a error in numbering in previous version 2017 had to be used
-$plugin->release = '1.1 (2014030900)';
+$plugin->version = 2020041700;
+$plugin->release = 'v1.2';
 $plugin->cron = 0;
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_userprofile_update';
-$plugin->requires  = 2013051400;
+$plugin->requires  = 2019111800;
