@@ -30,6 +30,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/authlib.php');
 require_once($CFG->dirroot . '/user/filters/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->dirroot . '/cohort/lib.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $parentcontextid = required_param('parentcontextid', PARAM_INT);
@@ -385,6 +386,12 @@ if ($confirmuser and confirm_sesskey()) {
         'id' => $usernew->id
     ));
     set_user_preference('auth_forcepasswordchange', 1, $usernew);
+
+    // Hard coded for single platform. Add an employee to that cohort.
+    $cohorts = cohort_get_all_cohorts(1,null, 'Mitarbeiter');
+    if ($cohorts['totalcohorts'] > 0 AND in_array(4, array_keys($cohorts['cohorts']))){
+        cohort_add_member(4, $usernew->id);
+    }
 
     if ($usercreated) {
         \core\event\user_created::create_from_userid($usernew->id)->trigger();
