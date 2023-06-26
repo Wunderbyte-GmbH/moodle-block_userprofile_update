@@ -8,20 +8,20 @@
 //
 // Moodle is distributed in the hope that it will be useful,
 // but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 // GNU General Public License for more details.
 //
 // You should have received a copy of the GNU General Public License
-// along with Moodle. If not, see <http://www.gnu.org/licenses/>.
+// along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
  * Configuration page.
  *
- * @package block
+ * @package    block
  * @subpackage userprofile_update
- * @author David Bogner <info@edulabs.org>
- * @copyright 2014 www.edulabs.org
- * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
+ * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 require_once('../../config.php');
 require_once('userprofile_update_form.php');
@@ -34,15 +34,15 @@ require_once($CFG->dirroot . '/user/lib.php');
 $courseid = required_param('courseid', PARAM_INT);
 $parentcontextid = required_param('parentcontextid', PARAM_INT);
 $delete = optional_param('delete', 0, PARAM_INT);
-$confirm = optional_param('confirm', '', PARAM_ALPHANUM); // md5 confirmation hash
+$confirm = optional_param('confirm', '', PARAM_ALPHANUM); // Md5 confirmation hash.
 $confirmuser = optional_param('confirmuser', 0, PARAM_INT);
 $sort = optional_param('sort', 'name', PARAM_ALPHANUM);
 $dir = optional_param('dir', 'ASC', PARAM_ALPHA);
 $page = optional_param('page', 0, PARAM_INT);
-$perpage = optional_param('perpage', 30, PARAM_INT); // how many per page
-$ru = optional_param('ru', '2', PARAM_INT); // show remote users
-$lu = optional_param('lu', '2', PARAM_INT); // show local users
-$acl = optional_param('acl', '0', PARAM_INT); // id of user to tweak mnet ACL (requires $access)
+$perpage = optional_param('perpage', 30, PARAM_INT); // How many per page.
+$ru = optional_param('ru', '2', PARAM_INT); // Show remote users.
+$lu = optional_param('lu', '2', PARAM_INT); // Show local users.
+$acl = optional_param('acl', '0', PARAM_INT); // Id of user to tweak mnet ACL (requires $access).
 $suspend = optional_param('suspend', 0, PARAM_INT);
 $unsuspend = optional_param('unsuspend', 0, PARAM_INT);
 $unlock = optional_param('unlock', 0, PARAM_INT);
@@ -51,7 +51,7 @@ $userid = optional_param('userid', 0, PARAM_INT);
 if (!$course = $DB->get_record('course', array(
     'id' => $courseid
 ))) {
-    print_error('invalidaccess');
+    throw new moodle_exception('invalidaccess');
 }
 
 require_login($course);
@@ -71,9 +71,9 @@ $PAGE->set_context($coursecontext);
 $PAGE->navbar->add(get_string('userprofile_update:updateuserprofile', 'block_userprofile_update'), $url);
 require_capability('block/userprofile_update:updateuserprofile', $coursecontext);
 
-// if the block is not added to this course, do not display user update possibility
+// If the block is not added to this course, do not display user update possibility.
 if ($coursecontext->id != $parentcontextid) {
-    print_error('invalidaccess');
+    throw new moodle_exception('invalidaccess');
 }
 
 $header = get_string('userprofile_update:updateuserprofile', 'block_userprofile_update');
@@ -140,26 +140,26 @@ if ($userform->is_cancelled()) {
     redirect($returnurl);
 }
 
-if ($confirmuser and confirm_sesskey()) {
+if ($confirmuser && confirm_sesskey()) {
     require_capability('block/userprofile_update:updateuserprofile', $coursecontext);
     if (!$user = $DB->get_record('user', array(
         'id' => $confirmuser,
         'mnethostid' => $CFG->mnet_localhost_id
     ))) {
-        print_error('nousers');
+        throw new moodle_exception('nousers');
     }
 
     $auth = get_auth_plugin($user->auth);
 
     $result = $auth->user_confirm($user->username, $user->secret);
 
-    if ($result == AUTH_CONFIRM_OK or $result == AUTH_CONFIRM_ALREADY) {
+    if ($result == AUTH_CONFIRM_OK || $result == AUTH_CONFIRM_ALREADY) {
         redirect($returnurl);
     } else {
         echo $OUTPUT->header();
         redirect($returnurl, get_string('usernotconfirmed', '', fullname($user, true)));
     }
-} else if ($delete and confirm_sesskey()) { // Delete a selected user, after confirmation
+} else if ($delete && confirm_sesskey()) { // Delete a selected user, after confirmation.
     require_capability('moodle/user:delete', $context);
 
     $user = $DB->get_record('user', array(
@@ -168,7 +168,7 @@ if ($confirmuser and confirm_sesskey()) {
     ), '*', MUST_EXIST);
 
     if (is_siteadmin($user->id)) {
-        print_error('useradminodelete', 'error');
+        throw new moodle_exception('useradminodelete', 'error');
     }
 
     if ($confirm != md5($delete)) {
@@ -184,31 +184,31 @@ if ($confirmuser and confirm_sesskey()) {
             $returnurl);
         echo $OUTPUT->footer();
         die ();
-    } else if (data_submitted() and !$user->deleted) {
+    } else if (data_submitted() && !$user->deleted) {
         if (delete_user($user)) {
-            session_gc(); // remove stale sessions
+            session_gc(); // Remove stale sessions.
             redirect($returnurl);
         } else {
-            session_gc(); // remove stale sessions
+            session_gc(); // Remove stale sessions.
             echo $OUTPUT->header();
             echo $OUTPUT->notification($returnurl, get_string('deletednot', '', fullname($user, true)));
         }
     }
-} else if ($acl and confirm_sesskey()) {
+} else if ($acl && confirm_sesskey()) {
     if (!has_capability('moodle/user:update', $context)) {
-        print_error('nopermissions', 'error', '', 'modify the NMET access control list');
+        throw new moodle_exception('nopermissions', 'error', '', 'modify the NMET access control list');
     }
     if (!$user = $DB->get_record('user', array(
         'id' => $acl
     ))) {
-        print_error('nousers', 'error');
+        throw new moodle_exception('nousers', 'error');
     }
     if (!is_mnet_remote_user($user)) {
-        print_error('usermustbemnet', 'error');
+        throw new moodle_exception('usermustbemnet', 'error');
     }
     $accessctrl = strtolower(required_param('accessctrl', PARAM_ALPHA));
-    if ($accessctrl != 'allow' and $accessctrl != 'deny') {
-        print_error('invalidaccessparameter', 'error');
+    if ($accessctrl != 'allow' && $accessctrl != 'deny') {
+        throw new moodle_exception('invalidaccessparameter', 'error');
     }
     $aclrecord = $DB->get_record('mnet_sso_access_control', array(
         'username' => $user->username,
@@ -226,7 +226,7 @@ if ($confirmuser and confirm_sesskey()) {
     }
     $mnethosts = $DB->get_records('mnet_host', null, 'id', 'id,wwwroot,name');
     redirect($returnurl);
-} else if ($suspend and confirm_sesskey()) {
+} else if ($suspend && confirm_sesskey()) {
     require_capability('block/userprofile_update:suspenduser', $coursecontext);
 
     if ($user = $DB->get_record('user', array(
@@ -234,7 +234,7 @@ if ($confirmuser and confirm_sesskey()) {
         'mnethostid' => $CFG->mnet_localhost_id,
         'deleted' => 0
     ))) {
-        if (!is_siteadmin($user) and $USER->id != $user->id and $user->suspended != 1) {
+        if (!is_siteadmin($user) && $USER->id != $user->id && $user->suspended != 1) {
             $user->suspended = 1;
             $user->timemodified = time();
             $DB->set_field('user', 'suspended', $user->suspended, array(
@@ -243,13 +243,13 @@ if ($confirmuser and confirm_sesskey()) {
             $DB->set_field('user', 'timemodified', $user->timemodified, array(
                 'id' => $user->id
             ));
-            // force logout
+            // Force logout.
             \core\session\manager::kill_user_sessions($user->id);
             \core\event\user_updated::create_from_userid($user->id)->trigger();
         }
     }
     redirect($returnurl);
-} else if ($unsuspend and confirm_sesskey()) {
+} else if ($unsuspend && confirm_sesskey()) {
     require_capability('block/userprofile_update:suspenduser', $coursecontext);
 
     if ($user = $DB->get_record('user', array(
@@ -270,7 +270,7 @@ if ($confirmuser and confirm_sesskey()) {
         }
     }
     redirect($returnurl);
-} else if ($unlock and confirm_sesskey()) {
+} else if ($unlock && confirm_sesskey()) {
     require_capability('moodle/user:update', $context);
 
     if ($user = $DB->get_record('user', array(
@@ -354,7 +354,7 @@ if ($confirmuser and confirm_sesskey()) {
         $usernew->country = $USER->country;
         $usernew->lang = 'de';
         if ($authplugin->is_internal()) {
-            if ($createpassword or empty ($usernew->newpassword)) {
+            if ($createpassword || empty ($usernew->newpassword)) {
                 $usernew->password = '';
             } else {
                 $usernew->password = hash_internal_user_password($usernew->newpassword);
@@ -377,10 +377,10 @@ if ($confirmuser and confirm_sesskey()) {
         $DB->update_record('user', $usertoupdate);
     }
 
-    // save custom profile fields data
+    // Save custom profile fields data.
     profile_save_data($usernew);
 
-    // reload from db
+    // Reload from db.
     $usernew = $DB->get_record('user', array(
         'id' => $usernew->id
     ));
@@ -394,7 +394,7 @@ if ($confirmuser and confirm_sesskey()) {
     redirect($url, get_string('changessaved'));
 }
 
-// create the user filter form
+// Create the user filter form.
 $ufiltering = new user_filtering (null, $url);
 
 echo $OUTPUT->header();
@@ -413,11 +413,12 @@ if ($userid > 0) {
     echo $OUTPUT->footer();
     exit ();
 }
-// Carry on with the user listing
+// Carry on with the user listing.
 $context = context_system::instance();
-$extracolumns = get_extra_user_fields($context);
+$fields = \core_user\fields::for_identity($context, false);
+$extracolumns = $fields->get_required_fields();
 
-// TODO: extra fields to display
+// TODO: extra fields to display.
 
 $columns = array_merge(array(
     'firstname',
@@ -428,7 +429,7 @@ $columns = array_merge(array(
 ));
 
 foreach ($columns as $column) {
-    $string [$column] = get_user_field_name($column);
+    $string [$column] = \core_user\fields::get_display_name($column);
     if ($sort != $column) {
         $columnicon = "";
         if ($column == "lastaccess") {
@@ -452,21 +453,23 @@ $override = new stdClass ();
 $override->firstname = 'firstname';
 $override->lastname = 'lastname';
 $fullnamelanguage = get_string('fullnamedisplay', '', $override);
-if (($CFG->fullnamedisplay == 'firstname lastname') or ($CFG->fullnamedisplay == 'firstname') or
-    ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'firstname lastname')) {
+if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
+    ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
     $fullnamedisplay = "$firstname / $lastname";
     if ($sort == "name") { // If sort has already been set to something else then ignore.
         $sort = "firstname";
     }
-} else { // ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname').
+} else {
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /* ($CFG->fullnamedisplay == 'language' and $fullnamelanguage == 'lastname firstname'). */
     $fullnamedisplay = "$lastname / $firstname";
     if ($sort == "name") { // This should give the desired sorting based on fullnamedisplay.
         $sort = "lastname";
     }
 }
-// default: do not show any users
+// Default: do not show any users.
 $displayuserssql = ' id = 0 ';
-// check group members of user who has capability to edit user profiles in this course and collect them in array
+// Check group members of user who has capability to edit user profiles in this course and collect them in array.
 if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
     $allmembers = array();
     if ($groupmembersonly) {
@@ -543,7 +546,7 @@ if (!$users) {
             $users [$key]->country = $countries [$user->country];
         }
     }
-    if ($sort == "country") { // Need to resort by full country name, not code
+    if ($sort == "country") { // Need to resort by full country name, not code.
         foreach ($users as $user) {
             $susers [$user->id] = $user->country;
         }
@@ -568,8 +571,9 @@ if (!$users) {
     $table->colclasses [] = 'leftalign';
     $table->head [] = $country;
     $table->colclasses [] = 'leftalign';
-    //$table->head [] = $lastaccess;
-    //$table->colclasses [] = 'leftalign';
+    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+    /*$table->head [] = $lastaccess;
+    $table->colclasses [] = 'leftalign'; */
     $table->head [] = get_string('edit');
     $table->colclasses [] = 'centeralign';
     $table->head [] = get_string('suspenduser', 'admin');
@@ -586,12 +590,10 @@ if (!$users) {
         $buttons ['suspend'] = '';
         $buttons ['delete'] = '';
         $buttons ['edit'] = '';
-        // delete button
+        // Delete button.
         if (has_capability('moodle/user:delete', $context)) {
-
-            if (is_mnet_remote_user($user) or $user->id == $USER->id or is_siteadmin($user)) {
-                // no deleting of self, mnet accounts or admins allowed
-            } else {
+            if (!(is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user))) {
+                // No deleting of self, mnet accounts or admins allowed.
                 $buttons ['delete'] = html_writer::link(new moodle_url ($returnurl, array(
                     'delete' => $user->id,
                     'sesskey' => sesskey()
@@ -605,10 +607,10 @@ if (!$users) {
             }
         }
 
-        // suspend button
+        // Suspend button.
         if (has_capability('block/userprofile_update:suspenduser', $coursecontext)) {
             if (is_mnet_remote_user($user)) {
-                // mnet users have special access control, they can not be deleted the standard way or suspended
+                // Mnet users have special access control, they can not be deleted the standard way or suspended.
                 $accessctrl = 'allow';
                 if ($acl = $DB->get_record('mnet_sso_access_control', array(
                     'username' => $user->username,
@@ -633,9 +635,8 @@ if (!$users) {
                         'title' => $strunsuspend
                     ));
                 } else {
-                    if ($user->id == $USER->id or is_siteadmin($user)) {
-                        // no suspending of admins or self!
-                    } else {
+                    if (!($user->id == $USER->id || is_siteadmin($user))) {
+                        // No suspending of admins or self!
                         $buttons ['suspend'] = html_writer::link(new moodle_url ($returnurl, array(
                             'suspend' => $user->id,
                             'sesskey' => sesskey()
@@ -664,10 +665,10 @@ if (!$users) {
             }
         }
 
-        // edit button
+        // Edit button.
         if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
-            // prevent editing of admins by non-admins
-            if (is_siteadmin($USER) or !is_siteadmin($user)) {
+            // Prevent editing of admins by non-admins.
+            if (is_siteadmin($USER) || !is_siteadmin($user)) {
                 $buttons ['edit'] = html_writer::link(new moodle_url ($url->out(), array(
                     'userid' => $user->id
                 )), html_writer::empty_tag('img', array(
@@ -680,9 +681,9 @@ if (!$users) {
             }
         }
 
-        // the last column - confirm or mnet info
+        // The last column - confirm or mnet info.
         if (is_mnet_remote_user($user)) {
-            // all mnet users are confirmed, let's print just the name of the host there
+            // All mnet users are confirmed, let's print just the name of the host there.
             if (isset ($mnethosts [$user->mnethostid])) {
                 $lastcolumn = get_string($accessctrl, 'mnet') . ': ' . $mnethosts [$user->mnethostid]->name;
             } else {
@@ -708,13 +709,15 @@ if (!$users) {
         $fullname = fullname($user, true);
 
         $row = array();
-        $row [] = $fullname; //"<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>";
+        $row [] = $fullname;
+        /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>"; */
         foreach ($extracolumns as $field) {
             $row [] = $user->{$field};
         }
         $row [] = $user->city;
         $row [] = $user->country;
-        //$row [] = $strlastaccess;
+        // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
+        /*$row [] = $strlastaccess; */
         if ($user->suspended) {
             foreach ($row as $k => $v) {
                 $row [$k] = html_writer::tag('span', $v, array(
@@ -729,7 +732,7 @@ if (!$users) {
     }
 }
 
-// add filters
+// Add filters.
 $ufiltering->display_add();
 $ufiltering->display_active();
 

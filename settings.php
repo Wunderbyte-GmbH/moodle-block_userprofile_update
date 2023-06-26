@@ -19,19 +19,22 @@
  *
  * @package    block
  * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-	$name = 'block_userprofile_update/showonlygroupmembers';
-	$setting = new admin_setting_configcheckbox($name, get_string('showonlygroupmembers', 'block_userprofile_update'), get_string('showonlygroupmembersdesc', 'block_userprofile_update'), 0);
-	$settings->add($setting);
-	$name = 'block_userprofile_update/showonlymatchingusers';
-	$setting = new admin_setting_configcheckbox($name, get_string('showonlymatchingusers', 'block_userprofile_update'), get_string('showonlymatchingusersdesc', 'block_userprofile_update'), 0);
-	$settings->add($setting);
+    $name = 'block_userprofile_update/showonlygroupmembers';
+    $setting = new admin_setting_configcheckbox($name,
+        get_string('showonlygroupmembers', 'block_userprofile_update'),
+        get_string('showonlygroupmembersdesc', 'block_userprofile_update'), 0);
+    $settings->add($setting);
+    $name = 'block_userprofile_update/showonlymatchingusers';
+    $setting = new admin_setting_configcheckbox($name,
+        get_string('showonlymatchingusers', 'block_userprofile_update'),
+        get_string('showonlymatchingusersdesc', 'block_userprofile_update'), 0);
+    $settings->add($setting);
 }
-
