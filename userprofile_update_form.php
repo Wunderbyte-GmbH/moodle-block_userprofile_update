@@ -19,8 +19,8 @@
  *
  * @package    block
  * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -52,7 +52,7 @@ class block_userprofile_update_form extends moodleform {
                 $courseid = $this->_customdata['courseid'];
             }
         }
-        //hidden elements
+        // Hidden elements.
         $mform->addElement('hidden', 'courseid', $courseid);
         $mform->setType('courseid', PARAM_INT);
         $mform->addElement('hidden', 'parentcontextid', $parentcontextid);
@@ -64,10 +64,12 @@ class block_userprofile_update_form extends moodleform {
 
         $mform->addElement('header', 'moodle', $strgeneral);
 
-        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>' . get_string('username') .
-            '</label></div><div class="felement ftext">' . $this->_customdata['username'] . '</div></div>');
-        $mform->addElement('html', '<div class="fitem fitem_ftext"><div class="fitemtitle"><label>' . get_string('firstname') .
-            '</label></div><div class="felement ftext">' . $this->_customdata['firstname'] . '</div></div>');
+        $mform->addElement('html', '<div class="fitem fitem_ftext row"><div class="fitemtitle col-md-3"><label>' .
+            get_string('username') .
+            '</label></div><div class="felement ftext col-md-9">' . $this->_customdata['username'] . '</div></div>');
+        $mform->addElement('html', '<div class="fitem fitem_ftext row"><div class="fitemtitle col-md-3"><label>' .
+            get_string('firstname') .
+            '</label></div><div class="felement ftext col-md-9">' . $this->_customdata['firstname'] . '</div></div>');
 
         $mform->addElement('hidden', 'firstname', $this->_customdata['firstname']);
         $mform->setType('firstname', PARAM_NOTAGS);
@@ -91,7 +93,7 @@ class block_userprofile_update_form extends moodleform {
             foreach ($categories as $category) {
                 if ($fields = $DB->get_records('user_info_field', array('categoryid' => $category->id), 'sortorder ASC')) {
 
-                    // check first if *any* fields will be displayed
+                    // Check first if *any* fields will be displayed.
                     $display = false;
                     foreach ($fields as $field) {
                         if ($field->visible != PROFILE_VISIBLE_NONE) {
@@ -99,7 +101,7 @@ class block_userprofile_update_form extends moodleform {
                         }
                     }
 
-                    // display the header and the fields
+                    // Display the header and the fields.
                     if ($display) {
                         $mform->addElement('header', 'category_' . $category->id, format_string($category->name));
                         foreach ($fields as $field) {
@@ -146,14 +148,14 @@ class block_userprofile_update_form extends moodleform {
         $user = $DB->get_record('user', array('id' => $usernew->userid));
         $err = array();
 
-        if (!$user or $user->email !== $usernew->email) {
+        if (!$user || $user->email !== $usernew->email) {
             if (!validate_email($usernew->email)) {
                 $err['email'] = get_string('invalidemail');
             }
         }
 
         if (!empty($usernew->newpassword)) {
-            $errmsg = '';//prevent eclipse warning
+            $errmsg = ''; // Prevent eclipse warning.
             if (!check_password_policy($usernew->newpassword, $errmsg)) {
                 $err['newpassword'] = $errmsg;
             }

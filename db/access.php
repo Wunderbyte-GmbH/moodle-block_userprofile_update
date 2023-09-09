@@ -19,8 +19,8 @@
  *
  * @package    block
  * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
@@ -28,27 +28,27 @@ defined('MOODLE_INTERNAL') || die();
 
 $capabilities = array(
     'block/userprofile_update:addinstance' => array(
-    	'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+        'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
         'archetypes' => array()
     ),
     'block/userprofile_update:updateuserprofile' => array(
-      'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
-      'captype' => 'write',
-      'contextlevel' => CONTEXT_COURSE,
-      'archetypes' => array()
+        'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array()
     ),
-	'block/userprofile_update:createuser' => array(
-			'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
-			'captype' => 'write',
-			'contextlevel' => CONTEXT_COURSE,
-			'archetypes' => array()
-	),
-	'block/userprofile_update:suspenduser' => array(
-			'riskbitmask'  =>  RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
-			'captype' => 'write',
-			'contextlevel' => CONTEXT_COURSE,
-			'archetypes' => array()
-	),
+    'block/userprofile_update:createuser' => array(
+        'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array()
+    ),
+    'block/userprofile_update:suspenduser' => array(
+        'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
+        'captype' => 'write',
+        'contextlevel' => CONTEXT_COURSE,
+        'archetypes' => array()
+    ),
 );

@@ -19,27 +19,34 @@
  *
  * @package    block
  * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 class block_userprofile_update extends block_base {
+
+    /**
+     * @var string name of the block
+     */
+    public $blockname;
 
     public function init() {
         $this->blockname = get_class($this);
         $this->title   = get_string('title', 'block_userprofile_update');
     }
 
-    function applicable_formats() {
-        return array('all' => false,
-                'course-view' => true,
-                'site' => true);
+    public function applicable_formats() {
+        return array(
+            'all' => false,
+            'course-view' => true,
+            'site' => true
+        );
     }
-    
+
     public function get_content() {
-        global $USER, $CFG, $COURSE;
-        
+        global $CFG, $COURSE;
+
         if ($this->content !== null) {
             return $this->content;
         }
@@ -51,7 +58,8 @@ class block_userprofile_update extends block_base {
         if (has_capability('block/userprofile_update:updateuserprofile', CONTEXT_BLOCK::instance($this->instance->id))) {
             $this->content->text .= '<ul>';
             $this->content->text .= '<li>';
-            $this->content->text .= '<a href="'.$CFG->wwwroot.'/blocks/userprofile_update/userprofile_update.php?courseid='.$COURSE->id.'&parentcontextid='.$this->instance->parentcontextid.'" >';
+            $this->content->text .= '<a href="' . $CFG->wwwroot . '/blocks/userprofile_update/userprofile_update.php?courseid=' .
+                $COURSE->id . '&parentcontextid=' . $this->instance->parentcontextid . '" >';
             $this->content->text .= get_string('userprofile_update:updateuserprofile', 'block_userprofile_update');
             $this->content->text .= '</a>';
             $this->content->text .= '</li>';

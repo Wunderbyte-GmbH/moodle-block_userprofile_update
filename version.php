@@ -19,14 +19,15 @@
  *
  * @package    block
  * @subpackage userprofile_update
- * @author     David Bogner <info@edulabs.org>
- * @copyright  2014 www.edulabs.org
+ * @author     David Bogner
+ * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
-$plugin->version = 2017010100;// Due to a error in numbering in previous version 2017 had to be used
-$plugin->release = '1.1 (2014030900)';
-$plugin->cron = 0;
+defined('MOODLE_INTERNAL') || die();
+
+$plugin->version = 2023062600;
+$plugin->release = 'v1.3';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_userprofile_update';
-$plugin->requires  = 2013051400;
+$plugin->requires  = 2021051700; // Moodle 3.11 is minimum.
