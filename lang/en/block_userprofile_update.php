@@ -31,11 +31,11 @@ $string['userprofile_update:updateuserprofile'] = 'Update user profiles';
 $string['userprofile_update:createuser'] = 'Create new user';
 $string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
 
-$string['save_changes'] = 'Save changes';
-$string['saved'] = 'Changes saved';
-
 $string['eventuserprofile_updated'] = 'User profile has been updated';
 $string['showonlygroupmembers'] = 'Show only users that are members of the same group of the current user';
 $string['showonlygroupmembersdesc'] = 'Allow editing and viewing of users belonging to the same group as the editing user only';
 $string['showonlymatchingusers'] = 'Show only users that match the username pattern of the current user';
 $string['showonlymatchingusersdesc'] = 'Allow the editing user only to edit and view the users with the same username pattern';
+
+$string['selectuserprofilefield'] = 'Select user profile field for tenant';
+$string['selectuserprofilefield_desc'] = 'Choose a custom user profile field to associate with this tenant.';

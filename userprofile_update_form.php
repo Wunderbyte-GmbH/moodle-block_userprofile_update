@@ -29,6 +29,10 @@ defined('MOODLE_INTERNAL') || die();
 require_once($CFG->libdir . '/formslib.php');
 require_once($CFG->dirroot . '/user/profile/lib.php');
 
+/**
+ * Form for updating the user profile.
+ *
+ */
 class block_userprofile_update_form extends moodleform {
 
     public function definition() {
@@ -114,20 +118,27 @@ class block_userprofile_update_form extends moodleform {
 
     }
 
-    public function definition_after_data() {
-        global $CFG, $DB;
+    public function definition_after_data(): void {
+        global $DB;
         $mform =& $this->_form;
 
         $userid = $mform->getElementValue('userid');
         $usernew = $DB->get_record('user', array('id' => $userid));
         if ($mform->isSubmitted()) {
             // Save config here.
-            $mform->addElement('static', 'saved', '', get_string('saved', 'block_userprofile_update'));
+            $mform->addElement('static', 'saved', '', get_string('changessaved'));
         }
     }
 
-    function validation($usernew, $files) {
-        global $CFG, $DB;
+    /**
+     * Validate data.
+     *
+     * @param $usernew
+     * @param $files
+     * @return array
+     */
+    public function validation($usernew, $files): array {
+        global $DB;
 
         $usernew = (object) $usernew;
         $usernew->id = $usernew->userid;
