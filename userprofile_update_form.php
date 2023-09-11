@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
 class block_userprofile_update_form extends moodleform {
 
     public function definition() {
-        global $CFG, $DB;
+        global $CFG, $DB, $USER;
         $strgeneral = get_string('general');
         $strrequired = get_string('required');
         $mform =& $this->_form;
@@ -67,11 +67,9 @@ class block_userprofile_update_form extends moodleform {
         $mform->addElement('html', '<div class="fitem fitem_ftext row"><div class="fitemtitle col-md-3"><label>' .
             get_string('username') .
             '</label></div><div class="felement ftext col-md-9">' . $this->_customdata['username'] . '</div></div>');
-        $mform->addElement('html', '<div class="fitem fitem_ftext row"><div class="fitemtitle col-md-3"><label>' .
-            get_string('firstname') .
-            '</label></div><div class="felement ftext col-md-9">' . $this->_customdata['firstname'] . '</div></div>');
 
-        $mform->addElement('hidden', 'firstname', $this->_customdata['firstname']);
+        $mform->addElement('text', 'firstname', get_string('firstname'));
+        $mform->addRule('firstname', $strrequired, 'required', null, 'client');
         $mform->setType('firstname', PARAM_NOTAGS);
 
         $mform->addElement('text', 'lastname', get_string('lastname'), 'maxlength="100" size="30"');
@@ -102,14 +100,18 @@ class block_userprofile_update_form extends moodleform {
                     }
 
                     // Display the header and the fields.
+                    $userprofileconfig = block_userprofile_update_get_config();
+                    profile_load_custom_fields($USER);
                     if ($display) {
                         $mform->addElement('header', 'category_' . $category->id, format_string($category->name));
                         foreach ($fields as $field) {
-                            require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
-                            $newfield = 'profile_field_' . $field->datatype;
-                            $formfield = new $newfield($field->id, $userid);
-                            $formfield->edit_field($mform);
-                            $mform->setDefault($formfield->inputname, $formfield->display_data());
+                            if ($field->shortname == $userprofileconfig['profilepartnerid'] || $field->shortname == $userprofileconfig['profiletenant']) {
+                                require_once($CFG->dirroot . '/user/profile/field/' . $field->datatype . '/field.class.php');
+                                $newfield = 'profile_field_' . $field->datatype;
+                                $formfield = new $newfield($field->id, $userid);
+                                $formfield->edit_field($mform);
+                                $mform->setDefault($formfield->inputname, $USER->profile[$field->shortname]);
+                            }
                         }
                     }
                 }

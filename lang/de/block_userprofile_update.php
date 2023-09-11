@@ -35,8 +35,17 @@ $string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
 $string['eventuserprofile_updated'] = 'Nutzerprofil wurde geändert';
 $string['showonlygroupmembers'] = 'Nur Nutzer/innen der zugehörigen Gruppe/n anzeigen';
 $string['showonlygroupmembersdesc'] = 'Die Änderungen von Nutzerprofilen nur zulassen, wenn der User mit den entsprechenden Rechten auch Mitglied der Gruppe der zu ändernden User ist';
-$string['showonlymatchingusers'] = 'Nur Nutzer/innen anzeigen, die das selbe Anmeldenamen-Schema haben';
-$string['showonlymatchingusersdesc'] = 'Nur Nutzerprofiländerungen erlauben, wenn der/die Nutzer/in mit den entsprechenden Rechten das das Anmeldenamenschema hat. Beispiel: Nutzer mit Anmeldename de1234 kann nur Nutzer/innen mit Anmeldenamen m1_de1234 oder m2_de1234 ändern';
+$string['showonlymatchingusers'] = 'Zeige nur Benutzer, die denselben Mandantennamen im Mandantenprofilfeld des aktuellen Benutzers haben.';
+$string['showonlymatchingusersdesc'] = 'Erlauben Sie die Bearbeitung von Benutzern nur für Benutzer, die denselben Mandantennamen
+ in dem Profilfeld haben, das Sie als Mieterprofilfeld ausgewählt haben.';
 
-$string['selectuserprofilefield'] = 'Benutzerprofilfeld für Mandant auswählen';
-$string['selectuserprofilefield_desc'] = 'Wählen Sie ein benutzerdefiniertes Benutzerprofilfeld aus, um es mit diesem Mandanten zu verknüpfen.';
+$string['selecttenant'] = 'Benutzerprofilfeld für Mandant auswählen';
+$string['selecttenant_desc'] = 'Wählen Sie ein Benutzerprofilfeld aus,
+ um es mit einem Mandanten zu verknüpfen. Sie müssen es in /user/profile/index.php erstellen, bevor Sie es hier auswählen können.
+ Es sollte eine Dropdown-Liste mit dem Namen aller verfügbaren Mandanten sein';
+
+$string['partnerid'] = 'Partner-ID';
+$string['partnerid_desc'] = 'Wählen Sie ein benutzerdefiniertes Benutzerprofilfeld aus, in dem die Partner-IDs definiert sind.';
+
+$string['ispartner'] = 'Ist Partner';
+$string['ispartner_desc'] = 'Wählen Sie ein benutzerdefiniertes Benutzerprofilfeld aus, um festzustellen, ob der Benutzer ein Partner ist.';

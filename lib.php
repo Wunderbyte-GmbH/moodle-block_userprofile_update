@@ -15,21 +15,21 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Automatically create a username according to a given pattern
+ * Automatically create a username according to a given tenant
  * Default: username of creator plus prefix
  *
- * @param  $creator string user who creates new user
+ * @param  \stdClass $creator  user who creates new user
  * @return string username
  */
-function block_userprofile_update_create_username($creator) {
-    (string)$username = '';
-    (array)$existingusers = array();
+function block_userprofile_update_create_username(stdClass $creator): string {
+    $blockconfig = block_userprofile_update_get_config();
     (array)$usernumber = array();
 
-    // Check which usernames already exists with pattern.
-    $existingusers = block_userprofile_update_get_matchingusers($creator->username);
-    if (!empty($existingusers)) {
-        foreach ($existingusers as $user) {
+    // Get all users that have the same partnerid.
+    $partnerusers = block_userprofile_update_get_matchingusers($blockconfig['partnerid'], $blockconfig['profilepartnerid'],
+            $creator->id);
+    if (!empty($partnerusers)) {
+        foreach ($partnerusers as $user) {
             $success = preg_match('/m(\d+?)_.+?/', $user->username, $matches);
             if ($success) {
                 $usernumber[] = $matches[1];
@@ -38,22 +38,57 @@ function block_userprofile_update_create_username($creator) {
     }
     if (!empty($usernumber)) {
         $newusernumber = max($usernumber) + 1;
-        $username = 'm' . $newusernumber . "_" . $creator->username;
+        $username = 'm' . $newusernumber . "_" . $creator->profile[$blockconfig['profilepartnerid']];
     } else {
-        $username = 'm1_'. $creator->username;
+        $username = 'm1_'. $creator->profile[$blockconfig['profilepartnerid']];
     }
     // Define new username.
     return $username;
 }
 
 /**
- * Get all users who match a username pattern and return them as array.
- * @param string $username
- * @return array users indexed by user id
+ *  Get all users who have the same partnerid.
+ *
+ * @param string $partnerid
+ * @param string $profilefieldshortname
+ * @param int $userid
+ * @return array
  */
-function block_userprofile_update_get_matchingusers($username) {
+function block_userprofile_update_get_matchingusers(string $partnerid, string $profilefieldshortname, int $userid) {
     global $DB;
-    $sql = 'username LIKE \'m%' . $username . "'";
-    $existingusers = $DB->get_records_select('user', $sql);
-    return $existingusers;
+    // Construct the SQL query to retrieve users with the same "partnerid".
+    $sql = "SELECT u.* 
+        FROM {user} u
+        INNER JOIN {user_info_data} pid ON u.id = pid.userid
+        WHERE pid.data = :partnerid
+        AND pid.fieldid = (SELECT id FROM {user_info_field} WHERE shortname = :fieldshortname)
+        AND u.id != :userid";
+
+    $params = array('partnerid' => $partnerid, 'fieldshortname' => $profilefieldshortname, 'userid' => $userid);
+    // Execute the query.
+    return $DB->get_records_sql($sql, $params);
+}
+
+/**
+ *  Get config and profile field values for $USER.
+ *  We get the partnerid of the user, the profile field name where it is saved and
+ *  the tenantname and the profilefield short name where the tenant name ist saved.
+ *
+ * @return array with partnerid, tenant, profilepartnerid, profiletenant
+ */
+function block_userprofile_update_get_config(): array {
+    global $USER;
+    // Profile field where the partner id is saved.
+    $profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
+    $profiletenant = get_config('block_userprofile_update', 'selecttenant');
+    $ispartner = get_config('block_userprofile_update', 'ispartner');
+    // Get the partnerid.
+    profile_load_custom_fields($USER);
+    $partnerid = $USER->profile[$profilefieldpartnerid] ?: 0;
+    $tenantid = $USER->profile[$profiletenant] ?: '';
+    return ['partnerid' => $partnerid,
+            'tenant' => $tenantid,
+            'ispartner' => $ispartner,
+            'profilepartnerid' => $profilefieldpartnerid,
+            'profiletenant' => $profiletenant];
 }

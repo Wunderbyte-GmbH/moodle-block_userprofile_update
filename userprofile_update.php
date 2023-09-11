@@ -78,7 +78,7 @@ if ($coursecontext->id != $parentcontextid) {
 
 $header = get_string('userprofile_update:updateuserprofile', 'block_userprofile_update');
 $groupmembersonly = get_config('block_userprofile_update', 'showonlygroupmembers');
-$patternmatchonly = get_config('block_userprofile_update', 'showonlymatchingusers');
+$tenantmatchonly = get_config('block_userprofile_update', 'showonlymatchingusers');
 
 $stredit = get_string('edit');
 $strdelete = get_string('delete');
@@ -107,11 +107,10 @@ if ($userid > 0) {
     $user->confirmed = 1;
     $user->deleted = 0;
     $userform = new block_userprofile_update_form (null, array(
-        'userid' => $userid,
-        'parentcontextid' => $parentcontextid,
-        'courseid' => $courseid,
-        'username' => block_userprofile_update_create_username($USER),
-        'firstname' => $USER->firstname
+            'userid' => $userid,
+            'parentcontextid' => $parentcontextid,
+            'courseid' => $courseid,
+            'username' => block_userprofile_update_create_username($USER),
     ));
     $userform->set_data($user);
 } else {
@@ -120,7 +119,6 @@ if ($userid > 0) {
         'parentcontextid' => $parentcontextid,
         'courseid' => $courseid,
         'username' => block_userprofile_update_create_username($USER),
-        'firstname' => $USER->firstname
     ));
 }
 
@@ -286,14 +284,14 @@ if ($confirmuser && confirm_sesskey()) {
     $usernew->id = $usernew->userid;
     // Check if user has right to edit the user.
     if (!has_capability('moodle/site:config', $context)) {
-        if (!($groupmembersonly || $patternmatchonly)) {
+        if (!($groupmembersonly || $tenantmatchonly)) {
             echo $OUTPUT->header();
             echo $OUTPUT->error_text('Invalid access');
             echo $OUTPUT->continue_button($url);
             echo $OUTPUT->footer();
             die ();
         }
-        if ($patternmatchonly) {
+        if ($tenantmatchonly) {
             $allowedusers = block_userprofile_update_get_matchingusers($USER->username);
             $alloweduserids = array_keys($allowedusers);
             if (!(in_array($usernew->id, $alloweduserids)) && $usernew->id != -1) {
@@ -378,6 +376,10 @@ if ($confirmuser && confirm_sesskey()) {
     }
 
     // Save custom profile fields data.
+    profile_load_custom_fields($USER);
+    $userprofileconfig = block_userprofile_update_get_config();
+    $usernew->profile[$userprofileconfig['profilepartnerid']] = $USER->profile[$userprofileconfig['profilepartnerid']];
+    $usernew->profile[$userprofileconfig['profiletenant']] = $USER->profile[$userprofileconfig['profiletenant']];
     profile_save_data($usernew);
 
     // Reload from db.
@@ -487,8 +489,11 @@ if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)
             }
         }
     }
-    if ($patternmatchonly) {
-        $matchingusers = block_userprofile_update_get_matchingusers($USER->username);
+    if ($tenantmatchonly) {
+        $userprofileconfig = block_userprofile_update_get_config();
+        $matchingusers = block_userprofile_update_get_matchingusers($userprofileconfig['partnerid'],
+                $userprofileconfig['profilepartnerid'],
+                $USER->id);
         if (!empty ($matchingusers)) {
             foreach ($matchingusers as $id => $value) {
                 $allmembers [$id] = $id;

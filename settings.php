@@ -37,7 +37,7 @@ if ($ADMIN->fulltree) {
 	$settings->add($setting);
     // Define the name of the setting
     $profile_field_choices = array();
-    $profile_field_choices[''] = get_string('chooseprofilefield', 'block_userprofile_update'); // Default option
+    $profile_field_choices[''] = get_string('choose'); // Default option
 
     // Query the user_info_field table to get the custom profile fields
     $profilefields = $DB->get_records('user_info_field');
@@ -46,9 +46,25 @@ if ($ADMIN->fulltree) {
     }
 
     $settings->add(new admin_setting_configselect(
-            'block_userprofile_update/selectuserprofilefield',
-            get_string('selectuserprofilefield', 'block_userprofile_update'),
-            get_string('selectuserprofilefield_desc', 'block_userprofile_update'),
+            'block_userprofile_update/selecttenant',
+            get_string('selecttenant', 'block_userprofile_update'),
+            get_string('selecttenant_desc', 'block_userprofile_update'),
+            '',
+            $profile_field_choices // Populate choices dynamically
+    ));
+
+    $settings->add(new admin_setting_configselect(
+            'block_userprofile_update/partnerid',
+            get_string('partnerid', 'block_userprofile_update'),
+            get_string('partnerid_desc', 'block_userprofile_update'),
+            '',
+            $profile_field_choices // Populate choices dynamically
+    ));
+
+    $settings->add(new admin_setting_configselect(
+            'block_userprofile_update/ispartner',
+            get_string('ispartner', 'block_userprofile_update'),
+            get_string('ispartner_desc', 'block_userprofile_update'),
             '',
             $profile_field_choices // Populate choices dynamically
     ));

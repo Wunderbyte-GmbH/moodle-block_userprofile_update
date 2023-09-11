@@ -34,8 +34,17 @@ $string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
 $string['eventuserprofile_updated'] = 'User profile has been updated';
 $string['showonlygroupmembers'] = 'Show only users that are members of the same group of the current user';
 $string['showonlygroupmembersdesc'] = 'Allow editing and viewing of users belonging to the same group as the editing user only';
-$string['showonlymatchingusers'] = 'Show only users that match the username pattern of the current user';
-$string['showonlymatchingusersdesc'] = 'Allow the editing user only to edit and view the users with the same username pattern';
+$string['showonlymatchingusers'] = 'Show only users that have the same tenant name in the tenant profile field of the current user';
+$string['showonlymatchingusersdesc'] = 'Allow editing of users only for users who have the same tenant name in the profilefield
+ that you have chosen to be the tenant profile field.';
 
-$string['selectuserprofilefield'] = 'Select user profile field for tenant';
-$string['selectuserprofilefield_desc'] = 'Choose a custom user profile field to associate with this tenant.';
+$string['selecttenant'] = 'Select user profile field tu user for tenant';
+$string['selecttenant_desc'] = 'Choose a custom user profile field where the avaible tenants are defined.
+ You have to create it in /user/profile/index.php before you can select it here. It should be a dropdown list with the
+ name of all available tenants.';
+
+$string['partnerid'] = 'Partner ID';
+$string['partnerid_desc'] = 'Select a custom user profile field where the partner IDs are defined.';
+
+$string['ispartner'] = 'Is Partner';
+$string['ispartner_desc'] = 'Select a custom user profile field to determine if the user is a partner.';
