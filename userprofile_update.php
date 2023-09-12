@@ -364,7 +364,11 @@ if ($confirmuser && confirm_sesskey()) {
             $usernew->password = AUTH_PASSWORD_NOT_CACHED;
         }
         $usernew->confirmed = 1;
+        profile_load_custom_fields($USER);
+        $usernew->profile[$userprofileconfig['profilepartnerid']] = $USER->profile[$userprofileconfig['profilepartnerid']];
+        $usernew->profile[$userprofileconfig['profiletenant']] = $USER->profile[$userprofileconfig['profiletenant']];
         $usernew->id = user_create_user($usernew, false, false);
+        profile_save_data($usernew);
         $usercreated = true;
     } else {
         $usertoupdate = $DB->get_record('user', array(
@@ -392,8 +396,6 @@ if ($confirmuser && confirm_sesskey()) {
 
     if ($usercreated) {
         \core\event\user_created::create_from_userid($usernew->id)->trigger();
-    } else {
-        \core\event\user_updated::create_from_userid($usernew->id)->trigger();
     }
     redirect($url, get_string('changessaved'));
 }
