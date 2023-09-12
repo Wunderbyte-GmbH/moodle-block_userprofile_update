@@ -49,9 +49,9 @@ function block_userprofile_update_create_username(stdClass $creator): string {
 /**
  *  Get all users who have the same partnerid.
  *
- * @param string $partnerid
- * @param string $profilefieldshortname
- * @param int $userid
+ * @param string $partnerid PBL number
+ * @param string $profilefieldshortname name of the profile field used to store the partnerid
+ * @param int $userid the id of the partner usually $USER
  * @return array
  */
 function block_userprofile_update_get_matchingusers(string $partnerid, string $profilefieldshortname, int $userid) {

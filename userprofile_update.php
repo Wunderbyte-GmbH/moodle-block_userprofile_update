@@ -79,6 +79,7 @@ if ($coursecontext->id != $parentcontextid) {
 $header = get_string('userprofile_update:updateuserprofile', 'block_userprofile_update');
 $groupmembersonly = get_config('block_userprofile_update', 'showonlygroupmembers');
 $tenantmatchonly = get_config('block_userprofile_update', 'showonlymatchingusers');
+$userprofileconfig = block_userprofile_update_get_config();
 
 $stredit = get_string('edit');
 $strdelete = get_string('delete');
@@ -292,7 +293,9 @@ if ($confirmuser && confirm_sesskey()) {
             die ();
         }
         if ($tenantmatchonly) {
-            $allowedusers = block_userprofile_update_get_matchingusers($USER->username);
+            $allowedusers = block_userprofile_update_get_matchingusers($userprofileconfig['partnerid'],
+                    $userprofileconfig['profilepartnerid'],
+                    $USER->id);
             $alloweduserids = array_keys($allowedusers);
             if (!(in_array($usernew->id, $alloweduserids)) && $usernew->id != -1) {
                 echo $OUTPUT->header();
@@ -377,7 +380,6 @@ if ($confirmuser && confirm_sesskey()) {
 
     // Save custom profile fields data.
     profile_load_custom_fields($USER);
-    $userprofileconfig = block_userprofile_update_get_config();
     $usernew->profile[$userprofileconfig['profilepartnerid']] = $USER->profile[$userprofileconfig['profilepartnerid']];
     $usernew->profile[$userprofileconfig['profiletenant']] = $USER->profile[$userprofileconfig['profiletenant']];
     profile_save_data($usernew);
@@ -490,7 +492,6 @@ if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)
         }
     }
     if ($tenantmatchonly) {
-        $userprofileconfig = block_userprofile_update_get_config();
         $matchingusers = block_userprofile_update_get_matchingusers($userprofileconfig['partnerid'],
                 $userprofileconfig['profilepartnerid'],
                 $USER->id);
