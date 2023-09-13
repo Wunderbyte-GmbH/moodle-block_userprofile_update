@@ -365,10 +365,15 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usernew->confirmed = 1;
         profile_load_custom_fields($USER);
-        $usernew->profile[$userprofileconfig['profilepartnerid']] = $USER->profile[$userprofileconfig['profilepartnerid']];
-        $usernew->profile[$userprofileconfig['profiletenant']] = $USER->profile[$userprofileconfig['profiletenant']];
+        $field = "profile_field_" . $userprofileconfig['profilepartnerid'];
+        $usernew->$field = $USER->profile[$userprofileconfig['profilepartnerid']];
+        $field = "profile_field_" . $userprofileconfig['profiletenant'];
+        $usernew->$field = $USER->profile[$userprofileconfig['profiletenant']];
         $usernew->id = user_create_user($usernew, false, false);
-        profile_save_data($usernew);
+        $fields = profile_get_user_fields_with_data($usernew->id);
+        foreach ($fields as $formfield) {
+            $formfield->edit_save_data($usernew);
+        }
         $usercreated = true;
     } else {
         $usertoupdate = $DB->get_record('user', array(
@@ -381,12 +386,6 @@ if ($confirmuser && confirm_sesskey()) {
         $usertoupdate->password = hash_internal_user_password($usernew->newpassword);
         $DB->update_record('user', $usertoupdate);
     }
-
-    // Save custom profile fields data.
-    profile_load_custom_fields($USER);
-    $usernew->profile[$userprofileconfig['profilepartnerid']] = $USER->profile[$userprofileconfig['profilepartnerid']];
-    $usernew->profile[$userprofileconfig['profiletenant']] = $USER->profile[$userprofileconfig['profiletenant']];
-    profile_save_data($usernew);
 
     // Reload from db.
     $usernew = $DB->get_record('user', array(
