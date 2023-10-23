@@ -461,7 +461,9 @@ foreach ($columns as $column) {
 // Add action columns.
 $namedcolumns['edit'] = get_string('edit');
 $namedcolumns['suspend']  = get_string('suspenduser', 'admin');
-$namedcolumns['delete']  = get_string('deleteuser', 'admin');
+if (has_capability('moodle/user:delete', $context)) {
+    $namedcolumns['delete']  = get_string('deleteuser', 'admin');
+}
 
 
 $override = new stdClass ();
