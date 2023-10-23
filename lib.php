@@ -56,6 +56,9 @@ function block_userprofile_update_create_username(stdClass $creator): string {
  */
 function block_userprofile_update_get_matchingusers(string $partnerid, string $profilefieldshortname, int $userid) {
     global $DB;
+    if (empty($partnerid)) {
+        return [];
+    }
     // Construct the SQL query to retrieve users with the same "partnerid".
     $sql = "SELECT u.* 
         FROM {user} u

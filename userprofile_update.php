@@ -90,9 +90,12 @@ $strunsuspend = get_string('unsuspenduser', 'admin');
 $strunlock = get_string('unlockaccount', 'admin');
 $strconfirm = get_string('confirm');
 if ($userid > 0) {
+    $user = core_user::get_user($userid);
+    /*
     $user = $DB->get_record('user', array(
         'id' => $userid
     ), '*', MUST_EXIST);
+    */
     $userform = new block_userprofile_update_form (null, array(
         'userid' => $userid,
         'parentcontextid' => $parentcontextid,
@@ -383,8 +386,9 @@ if ($confirmuser && confirm_sesskey()) {
         $usertoupdate->firstname = $usernew->firstname;
         $usertoupdate->lastname = $usernew->lastname;
         $usertoupdate->email = $usernew->email;
-        $usertoupdate->password = hash_internal_user_password($usernew->newpassword);
-        $DB->update_record('user', $usertoupdate);
+        // $usertoupdate->password = hash_internal_user_password($usernew->newpassword);
+        // $DB->update_record('user', $usertoupdate);
+        profile_save_data($usernew);
     }
 
     // Reload from db.
@@ -420,7 +424,7 @@ if ($userid > 0) {
 }
 // Carry on with the user listing.
 $context = context_system::instance();
-$fields = \core_user\fields::for_identity($context, false);
+$fields = \core_user\fields::for_identity($context)->including("profile_field_" . $userprofileconfig['profilepartnerid']);
 $extracolumns = $fields->get_required_fields();
 
 // TODO: extra fields to display.
@@ -451,7 +455,7 @@ foreach ($columns as $column) {
         }
         $columnicon = "<img class='iconsort' src=\"" . $OUTPUT->image_url('t/' . $columnicon) . "\" alt=\"\" />";
     }
-    $$column = "<a href=\"" . $url->out() . "&sort=$column&amp;dir=$columndir\">" . $string [$column] . "</a>$columnicon";
+    $column = "<a href=\"" . $url->out() . "&sort=$column&amp;dir=$columndir\">" . $string [$column] . "</a>$columnicon";
 }
 
 $override = new stdClass ();
@@ -460,7 +464,7 @@ $override->lastname = 'lastname';
 $fullnamelanguage = get_string('fullnamedisplay', '', $override);
 if (($CFG->fullnamedisplay == 'firstname lastname') || ($CFG->fullnamedisplay == 'firstname') ||
     ($CFG->fullnamedisplay == 'language' && $fullnamelanguage == 'firstname lastname')) {
-    $fullnamedisplay = "$firstname / $lastname";
+    $fullnamedisplay = "firstname / lastname";
     if ($sort == "name") { // If sort has already been set to something else then ignore.
         $sort = "firstname";
     }
@@ -571,16 +575,13 @@ if (!$users) {
     $table->attributes ['class'] = 'admintable generaltable';
     $table->colclasses [] = 'leftalign';
     foreach ($extracolumns as $field) {
-        $table->head [] = ${$field};
+        $table->head [] = "$field";
         $table->colclasses [] = 'leftalign';
     }
-    $table->head [] = $city;
-    $table->colclasses [] = 'leftalign';
-    $table->head [] = $country;
-    $table->colclasses [] = 'leftalign';
-    // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
-    /*$table->head [] = $lastaccess;
-    $table->colclasses [] = 'leftalign'; */
+    $table->head [] = get_string('city');
+    $table->colclasses [] = 'centeralign';
+    $table->head [] = get_string('country');
+    $table->colclasses [] = 'centeralign';
     $table->head [] = get_string('edit');
     $table->colclasses [] = 'centeralign';
     $table->head [] = get_string('suspenduser', 'admin');
@@ -591,7 +592,6 @@ if (!$users) {
     $table->id = "users";
     foreach ($users as $user) {
         $lastcolumn = '';
-
         $buttons = array();
         $buttons ['delete'] = '';
         $buttons ['suspend'] = '';
@@ -714,12 +714,13 @@ if (!$users) {
             $strlastaccess = get_string('never');
         }
         $fullname = fullname($user, true);
+        profile_load_data($user);
 
         $row = array();
         $row [] = $fullname;
         /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>"; */
         foreach ($extracolumns as $field) {
-            $row [] = $user->{$field};
+            $row [] = $user->$field;
         }
         $row [] = $user->city;
         $row [] = $user->country;
