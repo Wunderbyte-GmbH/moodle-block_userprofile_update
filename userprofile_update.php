@@ -455,7 +455,7 @@ foreach ($columns as $column) {
         }
         $columnicon = "<img class='iconsort' src=\"" . $OUTPUT->image_url('t/' . $columnicon) . "\" alt=\"\" />";
     }
-    $column = "<a href=\"" . $url->out() . "&sort=$column&amp;dir=$columndir\">" . $string [$column] . "</a>$columnicon";
+    // $column = "<a href=\"" . $url->out() . "&sort=$column&amp;dir=$columndir\">" . $string [$column] . "</a>$columnicon";
 }
 
 $override = new stdClass ();
@@ -569,7 +569,8 @@ if (!$users) {
     }
 
     $table = new html_table ();
-    $table->head = array();
+    $table->head = $string;
+    /*
     $table->colclasses = array();
     $table->head [] = $fullnamedisplay;
     $table->attributes ['class'] = 'admintable generaltable';
@@ -588,7 +589,7 @@ if (!$users) {
     $table->colclasses [] = 'centeralign';
     $table->head [] = "";
     $table->colclasses [] = 'centeralign';
-
+    */
     $table->id = "users";
     foreach ($users as $user) {
         $lastcolumn = '';
