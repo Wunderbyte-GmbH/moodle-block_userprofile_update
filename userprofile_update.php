@@ -438,7 +438,7 @@ $columns = array_merge(array(
 ));
 
 foreach ($columns as $column) {
-    $string [$column] = \core_user\fields::get_display_name($column);
+    $namedcolumns[$column] = \core_user\fields::get_display_name($column);
     if ($sort != $column) {
         $columnicon = "";
         if ($column == "lastaccess") {
@@ -457,6 +457,12 @@ foreach ($columns as $column) {
     }
     // $column = "<a href=\"" . $url->out() . "&sort=$column&amp;dir=$columndir\">" . $string [$column] . "</a>$columnicon";
 }
+
+// Add action columns.
+$namedcolumns['edit'] = get_string('edit');
+$namedcolumns['suspend']  = get_string('suspenduser', 'admin');
+$namedcolumns['delete']  = get_string('deleteuser', 'admin');
+
 
 $override = new stdClass ();
 $override->firstname = 'firstname';
@@ -569,7 +575,7 @@ if (!$users) {
     }
 
     $table = new html_table ();
-    $table->head = $string;
+    $table->head = $namedcolumns;
     /*
     $table->colclasses = array();
     $table->head [] = $fullnamedisplay;
@@ -594,10 +600,9 @@ if (!$users) {
     foreach ($users as $user) {
         $lastcolumn = '';
         $buttons = array();
-        $buttons ['delete'] = '';
         $buttons ['suspend'] = '';
-        $buttons ['delete'] = '';
         $buttons ['edit'] = '';
+        $buttons ['delete'] = '';
         // Delete button.
         if (has_capability('moodle/user:delete', $context)) {
             if (!(is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user))) {
@@ -718,7 +723,8 @@ if (!$users) {
         profile_load_data($user);
 
         $row = array();
-        $row [] = $fullname;
+        $row [] = $user->firstname;
+        $row [] = $user->lastname;
         /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>"; */
         foreach ($extracolumns as $field) {
             $row [] = $user->$field;
@@ -734,8 +740,9 @@ if (!$users) {
                 ));
             }
         }
-        $row [] = $buttons ['edit'] . " " . $buttons ['delete'];
+        $row [] = $buttons ['edit'];
         $row [] = $buttons ['suspend'];
+        $row [] = $buttons ['delete'];
         $row [] = $lastcolumn;
         $table->data [] = $row;
     }
