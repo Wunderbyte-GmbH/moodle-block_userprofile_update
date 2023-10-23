@@ -379,15 +379,6 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usercreated = true;
     } else {
-        $usertoupdate = $DB->get_record('user', array(
-            'id' => $usernew->userid
-        ));
-        $usertoupdate->timemodified = time();
-        $usertoupdate->firstname = $usernew->firstname;
-        $usertoupdate->lastname = $usernew->lastname;
-        $usertoupdate->email = $usernew->email;
-        // $usertoupdate->password = hash_internal_user_password($usernew->newpassword);
-        // $DB->update_record('user', $usertoupdate);
         profile_save_data($usernew);
     }
 
@@ -578,26 +569,6 @@ if (!$users) {
 
     $table = new html_table ();
     $table->head = $namedcolumns;
-    /*
-    $table->colclasses = array();
-    $table->head [] = $fullnamedisplay;
-    $table->attributes ['class'] = 'admintable generaltable';
-    $table->colclasses [] = 'leftalign';
-    foreach ($extracolumns as $field) {
-        $table->head [] = "$field";
-        $table->colclasses [] = 'leftalign';
-    }
-    $table->head [] = get_string('city');
-    $table->colclasses [] = 'centeralign';
-    $table->head [] = get_string('country');
-    $table->colclasses [] = 'centeralign';
-    $table->head [] = get_string('edit');
-    $table->colclasses [] = 'centeralign';
-    $table->head [] = get_string('suspenduser', 'admin');
-    $table->colclasses [] = 'centeralign';
-    $table->head [] = "";
-    $table->colclasses [] = 'centeralign';
-    */
     $table->id = "users";
     foreach ($users as $user) {
         $lastcolumn = '';
@@ -727,7 +698,7 @@ if (!$users) {
         $row = array();
         $row [] = $user->firstname;
         $row [] = $user->lastname;
-        /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$fullname</a>"; */
+        /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$user->firstname $user->lastname</a>"; */
         foreach ($extracolumns as $field) {
             $row [] = $user->$field;
         }
