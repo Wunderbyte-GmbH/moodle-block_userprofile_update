@@ -379,6 +379,7 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usercreated = true;
     } else {
+        $DB->update_record('user', $usernew);
         profile_save_data($usernew);
     }
 
