@@ -727,7 +727,7 @@ $ufiltering->display_add();
 $ufiltering->display_active();
 
 if (has_capability('block/userprofile_update:createuser', $coursecontext)) {
-    echo $OUTPUT->heading('<a href="' . $url->out(true, array(
+    echo $OUTPUT->heading('<a class="btn btn-primary" href="' . $url->out(true, array(
             'userid' => -1
         )) . '" >' . get_string('addnewuser') . '</a>');
 }
@@ -738,11 +738,6 @@ if (!empty ($table)) {
     echo html_writer::table($table);
     echo html_writer::end_tag('div');
     echo $OUTPUT->paging_bar($usercount, $page, $perpage, $baseurl);
-    if (has_capability('block/userprofile_update:createuser', $coursecontext)) {
-        echo $OUTPUT->heading('<a href="' . $url->out(true, array(
-                'userid' => -1
-            )) . '" >' . get_string('addnewuser') . '</a>');
-    }
 }
 
 echo $OUTPUT->footer();
