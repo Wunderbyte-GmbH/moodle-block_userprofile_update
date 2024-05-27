@@ -18,12 +18,12 @@
  * Automatically create a username according to a given tenant
  * Default: username of creator plus prefix
  *
- * @param  \stdClass $creator  user who creates new user
+ * @param  stdClass $creator  user who creates new user
  * @return string username
  */
 function block_userprofile_update_create_username(stdClass $creator): string {
     $blockconfig = block_userprofile_update_get_config();
-    (array)$usernumber = array();
+    $usernumber = [];
 
     // Get all users that have the same partnerid.
     $partnerusers = block_userprofile_update_get_matchingusers($blockconfig['partnerid'], $blockconfig['profilepartnerid'],
@@ -52,12 +52,22 @@ function block_userprofile_update_create_username(stdClass $creator): string {
  * @param string $partnerid PBL number
  * @param string $profilefieldshortname name of the profile field used to store the partnerid
  * @param int $userid the id of the partner usually $USER
- * @return array
+ * @param bool $excludepartner do not retrieve the partners of the tenant
+ * @return array of user objects indexed by user id
  */
-function block_userprofile_update_get_matchingusers(string $partnerid, string $profilefieldshortname, int $userid) {
+function block_userprofile_update_get_matchingusers(string $partnerid,
+        string $profilefieldshortname, int $userid): array {
     global $DB;
     if (empty($partnerid)) {
         return [];
+    }
+    $usercreators = user_get_users_by_id([$userid]);
+    $usercreator = $usercreators[$userid];
+    profile_load_custom_fields($usercreator);
+    $partnerfield = get_config('block_userprofile_update', 'ispartner');
+    // When the usercreator is not partner, then an employee creates the user. So include employee in the count
+    if (!isset($usercreator->profile[$partnerfield]) || $usercreator->profile[$partnerfield] === "0") {
+        $userid = 0;
     }
     // Construct the SQL query to retrieve users with the same "partnerid".
     $sql = "SELECT u.* 
@@ -73,6 +83,27 @@ function block_userprofile_update_get_matchingusers(string $partnerid, string $p
 }
 
 /**
+ * Get partner from tennant of current $USER.
+ * @return array of userids
+ */
+function block_userprofile_update_get_tenant_partners(): array {
+    global $DB;
+    $config = block_userprofile_update_get_config();
+    $params = ['tenantfield' => $config['profiletenant'], 'partnerfield' => $config['ispartner'],
+            'tenantname' => $config['tenant']];
+    $sql = "SELECT u.id
+    FROM {user} u 
+    JOIN {user_info_data} uid ON uid.userid = u.id
+    JOIN {user_info_field} uif ON uif.id = uid.fieldid
+    JOIN {user_info_data} uid2 ON uid2.userid = u.id
+    JOIN {user_info_field} uif2 ON uif2.id = uid2.fieldid
+    WHERE uif.shortname = :partnerfield AND uid.data = '1'
+    AND uif2.shortname = :tenantfield AND uid2.data = :tenantname";
+    $userids = $DB->get_fieldset_sql($sql, $params);
+    return $userids;
+}
+
+/**
  *  Get config and profile field values for $USER.
  *  We get the partnerid of the user, the profile field name where it is saved and
  *  the tenantname and the profilefield short name where the tenant name ist saved.
@@ -84,14 +115,14 @@ function block_userprofile_update_get_config(): array {
     // Profile field where the partner id is saved.
     $profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
     $profiletenant = get_config('block_userprofile_update', 'selecttenant');
-    $ispartner = get_config('block_userprofile_update', 'ispartner');
+    $partnerfield = get_config('block_userprofile_update', 'ispartner');
     // Get the partnerid.
     profile_load_custom_fields($USER);
     $partnerid = $USER->profile[$profilefieldpartnerid] ?: 0;
     $tenantid = $USER->profile[$profiletenant] ?: '';
     return ['partnerid' => $partnerid,
             'tenant' => $tenantid,
-            'ispartner' => $ispartner,
+            'ispartner' => $partnerfield,
             'profilepartnerid' => $profilefieldpartnerid,
             'profiletenant' => $profiletenant];
 }

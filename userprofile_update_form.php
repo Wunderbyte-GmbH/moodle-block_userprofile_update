@@ -40,7 +40,7 @@ class block_userprofile_update_form extends moodleform {
         $strgeneral = get_string('general');
         $strrequired = get_string('required');
         $mform =& $this->_form;
-
+        $usermanager = 0;
         if (is_array($this->_customdata)) {
             if (array_key_exists('userid', $this->_customdata)) {
                 $userid = $this->_customdata['userid'];
@@ -50,6 +50,9 @@ class block_userprofile_update_form extends moodleform {
             }
             if (array_key_exists('courseid', $this->_customdata)) {
                 $courseid = $this->_customdata['courseid'];
+            }
+            if (array_key_exists('usermanager', $this->_customdata)) {
+                $usermanager = $this->_customdata['usermanager'];
             }
         }
         // Hidden elements.
@@ -83,9 +86,19 @@ class block_userprofile_update_form extends moodleform {
         if (!empty($CFG->passwordpolicy)) {
             $mform->addElement('static', 'passwordpolicyinfo', '', print_password_policy());
         }
+
         $mform->addElement('passwordunmask', 'newpassword', get_string('newpassword'), 'size="20"');
         $mform->addHelpButton('newpassword', 'newpassword');
         $mform->setType('newpassword', PARAM_RAW);
+
+        profile_load_custom_fields($USER);
+        $partnerfield = get_config('block_userprofile_update', 'ispartner');
+        if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "1")) {
+            $mform->addElement('advcheckbox', 'usermanager', get_string('usermanager', 'block_userprofile_update'),
+                    get_string('canmanageusers', 'block_userprofile_update'), array('group' => 1), array(0, 1));
+            $mform->setDefault('usermanager', $usermanager);
+        }
+
 
         if ($categories = $DB->get_records('user_info_category', null, 'sortorder ASC')) {
             foreach ($categories as $category) {

@@ -91,6 +91,10 @@ $strunlock = get_string('unlockaccount', 'admin');
 $strconfirm = get_string('confirm');
 if ($userid > 0) {
     $user = core_user::get_user($userid);
+    $usermanager = 0;
+    if ($user->department === 'usermanager') {
+        $usermanager = 1;
+    }
     /*
     $user = $DB->get_record('user', array(
         'id' => $userid
@@ -101,7 +105,8 @@ if ($userid > 0) {
         'parentcontextid' => $parentcontextid,
         'courseid' => $courseid,
         'username' => $user->username,
-        'firstname' => $user->firstname
+        'firstname' => $user->firstname,
+        'usermanager' => $usermanager
     ));
     $userform->set_data($user);
 } else if ($userid == -1) {
@@ -168,8 +173,9 @@ if ($confirmuser && confirm_sesskey()) {
         'id' => $delete,
         'mnethostid' => $CFG->mnet_localhost_id
     ), '*', MUST_EXIST);
-
-    if (is_siteadmin($user->id)) {
+    profile_load_custom_fields($user);
+    // ToDo!
+    if (is_siteadmin($user->id) || $user) {
         throw new moodle_exception('useradminodelete', 'error');
     }
 
@@ -357,6 +363,11 @@ if ($confirmuser && confirm_sesskey()) {
         $usernew->city = $USER->city;
         $usernew->country = $USER->country;
         $usernew->lang = 'de';
+        if ($usernew->usermanager === "1") {
+            $usernew->department = 'usermanager';
+        }
+        unset($usernew->usermanager);
+
         if ($authplugin->is_internal()) {
             if ($createpassword || empty ($usernew->newpassword)) {
                 $usernew->password = '';
@@ -379,6 +390,11 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usercreated = true;
     } else {
+        if ($usermanager === 1) {
+            $usernew->department = "usermanager";
+        } else {
+            $usernew->department = "";
+        }
         $DB->update_record('user', $usernew);
         profile_save_data($usernew);
     }
@@ -457,7 +473,6 @@ if (has_capability('moodle/user:delete', $context)) {
     $namedcolumns['delete']  = get_string('deleteuser', 'admin');
 }
 
-
 $override = new stdClass ();
 $override->firstname = 'firstname';
 $override->lastname = 'lastname';
@@ -500,6 +515,19 @@ if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)
         $matchingusers = block_userprofile_update_get_matchingusers($userprofileconfig['partnerid'],
                 $userprofileconfig['profilepartnerid'],
                 $USER->id);
+        $tenantpartnerids = block_userprofile_update_get_tenant_partners();
+        foreach ($tenantpartnerids as $userid) {
+            if (isset($matchingusers[$userid])) {
+                unset($matchingusers[$userid]);
+            }
+        }
+        // Remove partner admin from list, if user is an employee allowed to create users.
+        profile_load_custom_fields($USER);
+        $partnerfield = get_config('block_userprofile_update', 'ispartner');
+        if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "0")) {
+            // Unset user who is partner.
+            unset($matchingusers[$USER->id]);
+        }
         if (!empty ($matchingusers)) {
             foreach ($matchingusers as $id => $value) {
                 $allmembers [$id] = $id;
@@ -554,7 +582,7 @@ if (!$users) {
 
     foreach ($users as $key => $user) {
         if (isset ($countries [$user->country])) {
-            $users [$key]->country = $countries [$user->country];
+            $users[$key]->country = $countries[$user->country];
         }
     }
     if ($sort == "country") { // Need to resort by full country name, not code.
@@ -718,7 +746,7 @@ if (!$users) {
         $row [] = $buttons ['suspend'];
         $row [] = $buttons ['delete'];
         $row [] = $lastcolumn;
-        $table->data [] = $row;
+        $table->data[] = $row;
     }
 }
 

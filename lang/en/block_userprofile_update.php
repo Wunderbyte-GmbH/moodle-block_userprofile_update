@@ -48,3 +48,6 @@ $string['partnerid_desc'] = 'Select a custom user profile field where the partne
 
 $string['ispartner'] = 'Is Partner';
 $string['ispartner_desc'] = 'Select a custom user profile field to determine if the user is a partner.';
+
+$string['usermanager'] = 'Employee manager';
+$string['canmanageusers'] = 'Can create and manage employees';
