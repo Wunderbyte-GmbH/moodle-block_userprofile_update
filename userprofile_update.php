@@ -390,7 +390,7 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usercreated = true;
     } else {
-        if ($usermanager === 1) {
+        if ($usernew->usermanager === "1") {
             $usernew->department = "usermanager";
         } else {
             $usernew->department = "";
