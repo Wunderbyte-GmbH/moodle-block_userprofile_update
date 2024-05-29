@@ -390,6 +390,15 @@ if ($confirmuser && confirm_sesskey()) {
         }
         $usercreated = true;
     } else {
+        if ($authplugin->is_internal()) {
+            if ($createpassword || empty ($usernew->newpassword)) {
+                $usernew->password = '';
+            } else {
+                $usernew->password = hash_internal_user_password($usernew->newpassword);
+            }
+        } else {
+            $usernew->password = AUTH_PASSWORD_NOT_CACHED;
+        }
         if ($usernew->usermanager === "1") {
             $usernew->department = "usermanager";
         } else {
