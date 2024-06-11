@@ -23,6 +23,9 @@
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use block_userprofile_update\userprofileupdate;
+
 require_once('../../config.php');
 require_once('userprofile_update_form.php');
 require_once('lib.php');
@@ -30,6 +33,7 @@ require_once($CFG->libdir . '/adminlib.php');
 require_once($CFG->libdir . '/authlib.php');
 require_once($CFG->dirroot . '/user/filters/lib.php');
 require_once($CFG->dirroot . '/user/lib.php');
+require_once($CFG->dirroot . '/blocks/userprofile_update/classes/userprofile_update.php');
 
 $courseid = required_param('courseid', PARAM_INT);
 $parentcontextid = required_param('parentcontextid', PARAM_INT);
@@ -355,7 +359,7 @@ if ($confirmuser && confirm_sesskey()) {
             die ();
         }
         unset ($usernew->id);
-        $createpassword = !empty ($usernew->createpassword);
+        $createpassword = !empty($usernew->createpassword);
         unset ($usernew->createpassword);
         $usernew->mnethostid = $CFG->mnet_localhost_id; // Always local user.
         $usernew->confirmed = 1;
@@ -378,34 +382,16 @@ if ($confirmuser && confirm_sesskey()) {
             $usernew->password = AUTH_PASSWORD_NOT_CACHED;
         }
         $usernew->confirmed = 1;
-        profile_load_custom_fields($USER);
-        $field = "profile_field_" . $userprofileconfig['profilepartnerid'];
-        $usernew->$field = $USER->profile[$userprofileconfig['profilepartnerid']];
-        $field = "profile_field_" . $userprofileconfig['profiletenant'];
-        $usernew->$field = $USER->profile[$userprofileconfig['profiletenant']];
         $usernew->id = user_create_user($usernew, false, false);
         $fields = profile_get_user_fields_with_data($usernew->id);
         foreach ($fields as $formfield) {
             $formfield->edit_save_data($usernew);
         }
+        $usernew = userprofileupdate::update_userprofile_fields($usernew);
         $usercreated = true;
     } else {
-        if ($authplugin->is_internal()) {
-            if ($createpassword || empty ($usernew->newpassword)) {
-                $usernew->password = '';
-            } else {
-                $usernew->password = hash_internal_user_password($usernew->newpassword);
-            }
-        } else {
-            $usernew->password = AUTH_PASSWORD_NOT_CACHED;
-        }
-        if ($usernew->usermanager === "1") {
-            $usernew->department = "usermanager";
-        } else {
-            $usernew->department = "";
-        }
+        $usernew = userprofileupdate::update_userprofile_fields($usernew);
         $DB->update_record('user', $usernew);
-        profile_save_data($usernew);
     }
 
     // Reload from db.
@@ -539,7 +525,7 @@ if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)
         }
         if (!empty ($matchingusers)) {
             foreach ($matchingusers as $id => $value) {
-                $allmembers [$id] = $id;
+                $allmembers[$id] = $id;
             }
         }
     }

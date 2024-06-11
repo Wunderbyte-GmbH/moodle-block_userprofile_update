@@ -49,6 +49,8 @@ $string['partnerid_desc'] = 'Wählen Sie ein benutzerdefiniertes Benutzerprofilf
 
 $string['ispartner'] = 'Ist Partner';
 $string['ispartner_desc'] = 'Wählen Sie ein benutzerdefiniertes Benutzerprofilfeld aus, um festzustellen, ob der Benutzer ein Partner ist.';
+$string['partnerstatus'] = 'Partner-Status';
+$string['partnerstatus_desc'] = 'Wählen Sie das Feld für das Programm an dem der Partner teilnimmt';
 
 $string['usermanager'] = 'Mitarbeiter*innenverwaltung';
 $string['canmanageusers'] = 'Kann Mitarbeiter*innen verwalten und anlegen';

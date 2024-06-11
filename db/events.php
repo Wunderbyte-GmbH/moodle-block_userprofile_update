@@ -14,20 +14,21 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+
 /**
- * Version information
+ * Register event observers in block_userprofile_update
  *
- * @package    block
- * @subpackage userprofile_update
- * @author     David Bogner
- * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package block_userprofile_update
+ * @category event
+ * @copyright 2024 David Bogner
+ * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024060603;
-$plugin->release = 'v1.7';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->component = 'block_userprofile_update';
-$plugin->requires  = 2021051700; // Moodle 3.11 is minimum.
+$observers = [
+        [
+                'eventname' => '\core\event\user_updated',
+                'callback' => 'block_userprofile_update_observer::user_updated',
+        ]
+];

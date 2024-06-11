@@ -68,5 +68,12 @@ if ($ADMIN->fulltree) {
             '',
             $profile_field_choices // Populate choices dynamically
     ));
+    $settings->add(new admin_setting_configselect(
+            'block_userprofile_update/partnerstatus',
+            get_string('partnerstatus', 'block_userprofile_update'),
+            get_string('partnerstatus_desc', 'block_userprofile_update'),
+            '',
+            $profile_field_choices // Populate choices dynamically
+    ));
 }
 

@@ -116,6 +116,7 @@ function block_userprofile_update_get_config(): array {
     $profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
     $profiletenant = get_config('block_userprofile_update', 'selecttenant');
     $partnerfield = get_config('block_userprofile_update', 'ispartner');
+    $partnerstatusfield = get_config('block_userprofile_update', 'partnerstatus');
     // Get the partnerid.
     profile_load_custom_fields($USER);
     $partnerid = $USER->profile[$profilefieldpartnerid] ?: 0;
@@ -124,5 +125,6 @@ function block_userprofile_update_get_config(): array {
             'tenant' => $tenantid,
             'ispartner' => $partnerfield,
             'profilepartnerid' => $profilefieldpartnerid,
-            'profiletenant' => $profiletenant];
+            'profiletenant' => $profiletenant,
+            'profilestatusfield' => $partnerstatusfield];
 }
