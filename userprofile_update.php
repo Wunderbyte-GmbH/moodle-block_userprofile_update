@@ -62,7 +62,7 @@ require_login($course);
 
 $url = new moodle_url ('/blocks/userprofile_update/userprofile_update.php', array(
     'courseid' => $courseid,
-    'parentcontextid' => $parentcontextid
+    'parentcontextid' => $parentcontextid,
 ));
 
 $PAGE->set_url($url);
@@ -110,7 +110,7 @@ if ($userid > 0) {
         'courseid' => $courseid,
         'username' => $user->username,
         'firstname' => $user->firstname,
-        'usermanager' => $usermanager
+        'usermanager' => $usermanager,
     ));
     $userform->set_data($user);
 } else if ($userid == -1) {
@@ -464,6 +464,8 @@ foreach ($columns as $column) {
 // Add action columns.
 $namedcolumns['edit'] = get_string('edit');
 $namedcolumns['suspend']  = get_string('suspenduser', 'admin');
+$namedcolumns['cert']  = get_string('certificate', 'mod_customcert');
+
 if (has_capability('moodle/user:delete', $context)) {
     $namedcolumns['delete']  = get_string('deleteuser', 'admin');
 }
@@ -597,8 +599,18 @@ if (!$users) {
     foreach ($users as $user) {
         $lastcolumn = '';
         $buttons = array();
-        $buttons ['suspend'] = '';
-        $buttons ['edit'] = '';
+        $buttons['suspend'] = '';
+        $buttons['edit'] = '';
+        $buttons['cert'] = html_writer::link(new moodle_url ('./certificates.php', array(
+                    'userid' => $user->id,
+                    'courseid' => $courseid,
+                )), html_writer::empty_tag('img', [
+                    'src' => $OUTPUT->image_url('monologo', 'mod_customcert'),
+                    'alt' => get_string('certificate', 'mod_customcert'),
+                    'class' => 'iconsmall',
+                ]), array(
+                    'title' => get_string('certificate', 'mod_customcert')
+                ));
         $buttons ['delete'] = '';
         // Delete button.
         if (has_capability('moodle/user:delete', $context)) {
@@ -737,10 +749,11 @@ if (!$users) {
                 ));
             }
         }
-        $row [] = $buttons ['edit'];
-        $row [] = $buttons ['suspend'];
-        $row [] = $buttons ['delete'];
-        $row [] = $lastcolumn;
+        $row[] = $buttons['edit'];
+        $row[] = $buttons['suspend'];
+        $row[] = $buttons['cert'];
+        $row[] = $buttons['delete'];
+        $row[] = $lastcolumn;
         $table->data[] = $row;
     }
 }
