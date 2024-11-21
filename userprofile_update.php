@@ -609,7 +609,8 @@ if (!$users) {
                     'alt' => get_string('certificate', 'mod_customcert'),
                     'class' => 'iconsmall',
                 ]), array(
-                    'title' => get_string('certificate', 'mod_customcert')
+                    'title' => get_string('certificate', 'mod_customcert'),
+                    'target' => '_blank'
                 ));
         $buttons ['delete'] = '';
         // Delete button.

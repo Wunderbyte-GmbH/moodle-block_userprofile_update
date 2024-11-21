@@ -39,6 +39,7 @@ if ($downloadcert) {
         throw new moodle_exception('You have not been issued a certificate');
     }
 }
+
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', \mod_customcert\certificate::CUSTOMCERT_PER_PAGE, PARAM_INT);
 $pageurl = $url = new moodle_url('/mod/customcert/my_certificates.php', ['userid' => $userid,
@@ -60,11 +61,20 @@ if (($userid != $USER->id) && !has_capability('block/userprofile_update:updateus
     throw new moodle_exception('You are not allowed to view these certificates');
 }
 
+$profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
+profile_load_custom_fields($USER);
+$partnerid = $USER->profile[$profilefieldpartnerid] ?: 0;
+profile_load_custom_fields($user);
+$extpartnerid = $user->profile[$profilefieldpartnerid] ?: 0;
+
+if (($partnerid == 0) || ($partnerid != $extpartnerid)) {
+    throw new moodle_exception('You are not allowed to view these certificates');
+}
+
 $PAGE->set_url($pageurl);
 $PAGE->set_context(context_user::instance($userid));
-$PAGE->set_title(get_string('mycertificates', 'customcert'));
+$PAGE->set_title(get_string('certificate', 'customcert'));
 $PAGE->set_pagelayout('standard');
-$PAGE->navigation->extend_for_user($user);
 
 // Check if we requested to download a certificate.
 if ($downloadcert) {
@@ -82,12 +92,7 @@ if ($table->is_downloading()) {
     exit();
 }
 
-// Additional page setup.
-$PAGE->navbar->add(get_string('profile'), new moodle_url('/user/profile.php', ['id' => $userid]));
-$PAGE->navbar->add(get_string('mycertificates', 'customcert'));
-
 echo $OUTPUT->header();
-echo $OUTPUT->heading(get_string('mycertificates', 'customcert'));
-echo html_writer::div(get_string('mycertificatesdescription', 'customcert'));
+echo $OUTPUT->heading(get_string('privacy:metadata:customcert_issues', 'customcert') . ': ' . $user->firstname . ' ' . $user->lastname);
 $table->out($perpage, false);
 echo $OUTPUT->footer();
