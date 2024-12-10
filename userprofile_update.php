@@ -465,10 +465,7 @@ foreach ($columns as $column) {
 $namedcolumns['edit'] = get_string('edit');
 $namedcolumns['suspend']  = get_string('suspenduser', 'admin');
 $namedcolumns['cert']  = get_string('certificate', 'mod_customcert');
-
-if (has_capability('moodle/user:delete', $context)) {
-    $namedcolumns['delete']  = get_string('deleteuser', 'admin');
-}
+$namedcolumns['delete']  = get_string('deleteuser', 'admin');
 
 $override = new stdClass ();
 $override->firstname = 'firstname';
@@ -614,20 +611,18 @@ if (!$users) {
                 ));
         $buttons ['delete'] = '';
         // Delete button.
-        if (has_capability('moodle/user:delete', $context)) {
-            if (!(is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user))) {
-                // No deleting of self, mnet accounts or admins allowed.
-                $buttons ['delete'] = html_writer::link(new moodle_url ($returnurl, array(
-                    'delete' => $user->id,
-                    'sesskey' => sesskey()
-                )), html_writer::empty_tag('img', array(
-                    'src' => $OUTPUT->image_url('t/delete'),
-                    'alt' => $strdelete,
-                    'class' => 'iconsmall'
-                )), array(
-                    'title' => $strdelete
-                ));
-            }
+        if (!(is_mnet_remote_user($user) || $user->id == $USER->id || is_siteadmin($user))) {
+            // No deleting of self, mnet accounts or admins allowed.
+            $buttons ['delete'] = html_writer::link(new moodle_url ($returnurl, array(
+                'delete' => $user->id,
+                'sesskey' => sesskey()
+            )), html_writer::empty_tag('img', array(
+                'src' => $OUTPUT->image_url('t/delete'),
+                'alt' => $strdelete,
+                'class' => 'iconsmall'
+            )), array(
+                'title' => $strdelete
+            ));
         }
 
         // Suspend button.
