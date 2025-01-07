@@ -465,7 +465,6 @@ foreach ($columns as $column) {
 $namedcolumns['edit'] = get_string('edit');
 $namedcolumns['suspend']  = get_string('suspenduser', 'admin');
 $namedcolumns['cert']  = get_string('certificate', 'mod_customcert');
-$namedcolumns['delete']  = get_string('deleteuser', 'admin');
 
 $override = new stdClass ();
 $override->firstname = 'firstname';
@@ -748,7 +747,6 @@ if (!$users) {
         $row[] = $buttons['edit'];
         $row[] = $buttons['suspend'];
         $row[] = $buttons['cert'];
-        $row[] = $buttons['delete'];
         $row[] = $lastcolumn;
         $table->data[] = $row;
     }
