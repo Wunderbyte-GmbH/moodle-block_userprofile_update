@@ -42,7 +42,7 @@ if ($downloadcert) {
 
 $page = optional_param('page', 0, PARAM_INT);
 $perpage = optional_param('perpage', \mod_customcert\certificate::CUSTOMCERT_PER_PAGE, PARAM_INT);
-$pageurl = $url = new moodle_url('/mod/customcert/my_certificates.php', ['userid' => $userid,
+$pageurl = $url = new moodle_url('/blocks/userprofile_update/certificate.php', ['userid' => $userid,
     'page' => $page, 'perpage' => $perpage]);
 
 // Requires a login.
@@ -54,12 +54,12 @@ if ($courseid) {
 
 // Check that we have a valid user.
 $user = \core_user::get_user($userid, '*', MUST_EXIST);
-$coursecontext = CONTEXT_COURSE::instance($courseid);
+//$coursecontext = CONTEXT_COURSE::instance($courseid);
 
 // If we are viewing certificates that are not for the currently logged in user then do a capability check.
-if (($userid != $USER->id) && !has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
-    throw new moodle_exception('You are not allowed to view these certificates');
-}
+// if (($userid != $USER->id) && !has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
+//     throw new moodle_exception('You are not allowed to view these certificates');
+// }
 
 $profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
 profile_load_custom_fields($USER);
@@ -84,7 +84,7 @@ if ($downloadcert) {
     exit();
 }
 
-$table = new \mod_customcert\my_certificates_table($userid, $download);
+$table = new \block_userprofile_update\my_certificates_table($userid, $download);
 $table->define_baseurl($pageurl);
 
 if ($table->is_downloading()) {
