@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2025072101;
+$plugin->version = 2025072102;
 $plugin->release = 'v1.9';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_userprofile_update';
