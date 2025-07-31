@@ -88,7 +88,7 @@ $userprofileconfig = block_userprofile_update_get_config();
 $stredit = get_string('edit');
 $strdelete = get_string('delete');
 $strdeletecheck = get_string('deletecheck');
-$strshowallusers = get_string('showallusers');
+$strshowallusers = get_string('users');
 $strsuspend = get_string('suspenduser', 'admin');
 $strunsuspend = get_string('unsuspenduser', 'admin');
 $strunlock = get_string('unlockaccount', 'admin');
@@ -603,7 +603,7 @@ if (!$users) {
                 )), html_writer::empty_tag('img', [
                     'src' => $OUTPUT->image_url('monologo', 'mod_customcert'),
                     'alt' => get_string('certificate', 'mod_customcert'),
-                    'class' => 'iconsmall',
+                    'class' => 'icon iconsmall',
                 ]), array(
                     'title' => get_string('certificate', 'mod_customcert'),
                     'target' => '_blank'
@@ -618,7 +618,7 @@ if (!$users) {
             )), html_writer::empty_tag('img', array(
                 'src' => $OUTPUT->image_url('t/delete'),
                 'alt' => $strdelete,
-                'class' => 'iconsmall'
+                'class' => 'icon iconsmall'
             )), array(
                 'title' => $strdelete
             ));
@@ -647,7 +647,7 @@ if (!$users) {
                     )), html_writer::empty_tag('img', array(
                         'src' => $OUTPUT->image_url('t/show'),
                         'alt' => $strunsuspend,
-                        'class' => 'iconsmall'
+                        'class' => 'icon iconsmall'
                     )), array(
                         'title' => $strunsuspend
                     ));
@@ -660,7 +660,7 @@ if (!$users) {
                         )), html_writer::empty_tag('img', array(
                             'src' => $OUTPUT->image_url('t/hide'),
                             'alt' => $strsuspend,
-                            'class' => 'iconsmall'
+                            'class' => 'icon iconsmall'
                         )), array(
                             'title' => $strsuspend
                         ));
@@ -674,7 +674,7 @@ if (!$users) {
                     )), html_writer::empty_tag('img', array(
                         'src' => $OUTPUT->image_url('t/unlock'),
                         'alt' => $strunlock,
-                        'class' => 'iconsmall'
+                        'class' => 'icon iconsmall'
                     )), array(
                         'title' => $strunlock
                     ));
@@ -691,7 +691,7 @@ if (!$users) {
                 )), html_writer::empty_tag('img', array(
                     'src' => $OUTPUT->image_url('t/edit'),
                     'alt' => $stredit,
-                    'class' => 'iconsmall'
+                    'class' => 'icon iconsmall'
                 )), array(
                     'title' => $stredit
                 ));

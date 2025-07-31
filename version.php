@@ -26,8 +26,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024060604;
-$plugin->release = 'v1.7';
+$plugin->version = 2025072100;
+$plugin->release = 'v1.8';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_userprofile_update';
-$plugin->requires  = 2021051700; // Moodle 3.11 is minimum.
+$plugin->requires  = 2022112800; // Moodle 4.1 is minimum.
