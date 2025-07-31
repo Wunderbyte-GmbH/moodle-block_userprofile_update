@@ -256,7 +256,7 @@ if ($confirmuser && confirm_sesskey()) {
                 'id' => $user->id
             ));
             // Force logout.
-            \core\session\manager::kill_user_sessions($user->id);
+            \core\session\manager::destroy_user_sessions($user->id);
             \core\event\user_updated::create_from_userid($user->id)->trigger();
         }
     }
