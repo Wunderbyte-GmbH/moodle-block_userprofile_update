@@ -67,8 +67,10 @@ $partnerid = $USER->profile[$profilefieldpartnerid] ?: 0;
 profile_load_custom_fields($user);
 $extpartnerid = $user->profile[$profilefieldpartnerid] ?: 0;
 
-if (($partnerid == 0) || ($partnerid != $extpartnerid) || !is_siteadmin()) {
-    throw new moodle_exception('You are not allowed to view these certificates');
+if (($partnerid == 0) || ($partnerid != $extpartnerid)) {
+    if (!is_siteadmin()) {
+        throw new moodle_exception('You are not allowed to view these certificates');
+    }
 }
 
 $PAGE->set_url($pageurl);

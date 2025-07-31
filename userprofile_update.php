@@ -367,7 +367,7 @@ if ($confirmuser && confirm_sesskey()) {
         $usernew->city = $USER->city;
         $usernew->country = $USER->country;
         $usernew->lang = 'de';
-        if ($usernew->usermanager === "1") {
+        if (isset($usernew->usermanager) && $usernew->usermanager === "1") {
             $usernew->department = 'usermanager';
         }
         unset($usernew->usermanager);
