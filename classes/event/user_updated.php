@@ -17,7 +17,7 @@
 /**
  * The userprofile_updated event.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>

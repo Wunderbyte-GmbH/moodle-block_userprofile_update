@@ -17,7 +17,7 @@
 /**
  * Configuration form.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -34,7 +34,6 @@ require_once($CFG->dirroot . '/user/profile/lib.php');
  *
  */
 class block_userprofile_update_form extends moodleform {
-
     public function definition() {
         global $CFG, $DB, $USER;
         $strgeneral = get_string('general');
@@ -67,9 +66,13 @@ class block_userprofile_update_form extends moodleform {
 
         $mform->addElement('header', 'moodle', $strgeneral);
 
-        $mform->addElement('html', '<div class="fitem fitem_ftext row"><div class="fitemtitle col-md-3"><label>' .
-            get_string('username') .
-            '</label></div><div class="felement ftext col-md-9">' . $this->_customdata['username'] . '</div></div>');
+        $mform->addElement('html', '<div class="mb-3 row fitem">' .
+            '<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0">' .
+            '<label class="d-inline word-break">' . get_string('username') . '</label>' .
+            '</div>' .
+            '<div class="col-md-9 d-flex flex-wrap align-items-start felement">' .
+            '<span class="form-control-plaintext">' . $this->_customdata['username'] . '</span>' .
+            '</div></div>');
 
         $mform->addElement('text', 'firstname', get_string('firstname'));
         $mform->addRule('firstname', $strrequired, 'required', null, 'client');
@@ -79,9 +82,35 @@ class block_userprofile_update_form extends moodleform {
         $mform->addRule('lastname', $strrequired, 'required', null, 'client');
         $mform->setType('lastname', PARAM_NOTAGS);
 
-        $mform->addElement('text', 'email', get_string('email'), 'maxlength="100" size="30"');
-        $mform->addRule('email', $strrequired, 'required', null, 'client');
-        $mform->setType('email', PARAM_EMAIL);
+        // Check if automatic email is enabled.
+        $useautoemail = get_config('block_userprofile_update', 'useautoemail');
+        if ($useautoemail && !empty($this->_customdata['username'])) {
+            $emailpostfix = get_config('block_userprofile_update', 'emailpostfix');
+            if (!empty($emailpostfix)) {
+                $autoemail = $this->_customdata['username'] . $emailpostfix;
+                // Display email as read-only label.
+                $mform->addElement('html', '<div class="mb-3 row fitem">' .
+                    '<div class="col-md-3 col-form-label d-flex pb-0 pe-md-0">' .
+                    '<label class="d-inline word-break">' . get_string('email') . '</label>' .
+                    '</div>' .
+                    '<div class="col-md-9 d-flex flex-wrap align-items-start felement">' .
+                    '<span class="form-control-plaintext">' . $autoemail . '</span>' .
+                    '</div></div>');
+                // Store email value in hidden field.
+                $mform->addElement('hidden', 'email', $autoemail);
+                $mform->setType('email', PARAM_EMAIL);
+            } else {
+                // Fallback to editable field if postfix not configured.
+                $mform->addElement('text', 'email', get_string('email'), 'maxlength="100" size="30"');
+                $mform->addRule('email', $strrequired, 'required', null, 'client');
+                $mform->setType('email', PARAM_EMAIL);
+            }
+        } else {
+            // Automatic email disabled - show editable field.
+            $mform->addElement('text', 'email', get_string('email'), 'maxlength="100" size="30"');
+            $mform->addRule('email', $strrequired, 'required', null, 'client');
+            $mform->setType('email', PARAM_EMAIL);
+        }
 
         if (!empty($CFG->passwordpolicy)) {
             $mform->addElement('static', 'passwordpolicyinfo', '', print_password_policy());
@@ -94,16 +123,20 @@ class block_userprofile_update_form extends moodleform {
         profile_load_custom_fields($USER);
         $partnerfield = get_config('block_userprofile_update', 'ispartner');
         if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "1")) {
-            $mform->addElement('advcheckbox', 'usermanager', get_string('usermanager', 'block_userprofile_update'),
-                    get_string('canmanageusers', 'block_userprofile_update'), array('group' => 1), array(0, 1));
+            $mform->addElement(
+                'advcheckbox',
+                'usermanager',
+                get_string('usermanager', 'block_userprofile_update'),
+                get_string('canmanageusers', 'block_userprofile_update'),
+                ['group' => 1],
+                [0, 1]
+            );
             $mform->setDefault('usermanager', $usermanager);
         }
 
-
         if ($categories = $DB->get_records('user_info_category', null, 'sortorder ASC')) {
             foreach ($categories as $category) {
-                if ($fields = $DB->get_records('user_info_field', array('categoryid' => $category->id), 'sortorder ASC')) {
-
+                if ($fields = $DB->get_records('user_info_field', ['categoryid' => $category->id], 'sortorder ASC')) {
                     // Check first if *any* fields will be displayed.
                     $display = false;
                     foreach ($fields as $field) {
@@ -132,7 +165,6 @@ class block_userprofile_update_form extends moodleform {
         }
 
         $this->add_action_buttons();
-
     }
 
     public function definition_after_data(): void {
@@ -140,7 +172,7 @@ class block_userprofile_update_form extends moodleform {
         $mform =& $this->_form;
 
         $userid = $mform->getElementValue('userid');
-        $usernew = $DB->get_record('user', array('id' => $userid));
+        $usernew = $DB->get_record('user', ['id' => $userid]);
         if ($mform->isSubmitted()) {
             // Save config here.
             $mform->addElement('static', 'saved', '', get_string('changessaved'));
@@ -160,8 +192,8 @@ class block_userprofile_update_form extends moodleform {
         $usernew = (object) $usernew;
         $usernew->id = $usernew->userid;
 
-        $user = $DB->get_record('user', array('id' => $usernew->userid));
-        $err = array();
+        $user = $DB->get_record('user', ['id' => $usernew->userid]);
+        $err = [];
 
         if (!$user || $user->email !== $usernew->email) {
             if (!validate_email($usernew->email)) {
@@ -179,6 +211,5 @@ class block_userprofile_update_form extends moodleform {
         $err += profile_validation($usernew, $files);
 
         return $err;
-
     }
 }

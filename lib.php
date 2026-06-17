@@ -20,14 +20,18 @@
  *
  * @param  stdClass $creator  user who creates new user
  * @return string username
+ * @package block_userprofile_update
  */
 function block_userprofile_update_create_username(stdClass $creator): string {
     $blockconfig = block_userprofile_update_get_config();
     $usernumber = [];
 
     // Get all users that have the same partnerid.
-    $partnerusers = block_userprofile_update_get_matchingusers($blockconfig['partnerid'], $blockconfig['profilepartnerid'],
-            $creator->id);
+    $partnerusers = block_userprofile_update_get_matchingusers(
+        $blockconfig['partnerid'],
+        $blockconfig['profilepartnerid'],
+        $creator->id
+    );
     if (!empty($partnerusers)) {
         foreach ($partnerusers as $user) {
             $success = preg_match('/m(\d+?)_.+?/', $user->username, $matches);
@@ -40,7 +44,7 @@ function block_userprofile_update_create_username(stdClass $creator): string {
         $newusernumber = max($usernumber) + 1;
         $username = 'm' . $newusernumber . "_" . $creator->profile[$blockconfig['profilepartnerid']];
     } else {
-        $username = 'm1_'. $creator->profile[$blockconfig['profilepartnerid']];
+        $username = 'm1_' . $creator->profile[$blockconfig['profilepartnerid']];
     }
     // Define new username.
     return $username;
@@ -54,9 +58,13 @@ function block_userprofile_update_create_username(stdClass $creator): string {
  * @param int $userid the id of the partner usually $USER
  * @param bool $excludepartner do not retrieve the partners of the tenant
  * @return array of user objects indexed by user id
+ * @package block_userprofile_update
  */
-function block_userprofile_update_get_matchingusers(string $partnerid,
-        string $profilefieldshortname, int $userid): array {
+function block_userprofile_update_get_matchingusers(
+    string $partnerid,
+    string $profilefieldshortname,
+    int $userid
+): array {
     global $DB;
     if (empty($partnerid)) {
         return [];
@@ -77,7 +85,7 @@ function block_userprofile_update_get_matchingusers(string $partnerid,
         AND pid.fieldid = (SELECT id FROM {user_info_field} WHERE shortname = :fieldshortname)
         AND u.id != :userid";
 
-    $params = array('partnerid' => $partnerid, 'fieldshortname' => $profilefieldshortname, 'userid' => $userid);
+    $params = ['partnerid' => $partnerid, 'fieldshortname' => $profilefieldshortname, 'userid' => $userid];
     // Execute the query.
     return $DB->get_records_sql($sql, $params);
 }
@@ -85,6 +93,7 @@ function block_userprofile_update_get_matchingusers(string $partnerid,
 /**
  * Get partner from tennant of current $USER.
  * @return array of userids
+ * @package block_userprofile_update
  */
 function block_userprofile_update_get_tenant_partners(): array {
     global $DB;
@@ -109,6 +118,7 @@ function block_userprofile_update_get_tenant_partners(): array {
  *  the tenantname and the profilefield short name where the tenant name ist saved.
  *
  * @return array with partnerid, tenant, profilepartnerid, profiletenant
+ * @package block_userprofile_update
  */
 function block_userprofile_update_get_config(): array {
     global $USER;

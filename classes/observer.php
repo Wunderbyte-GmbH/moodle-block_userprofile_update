@@ -39,7 +39,6 @@ require_once($CFG->dirroot . '/blocks/userprofile_update/classes/userprofile_upd
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class block_userprofile_update_observer {
-
     /**
      * Observer for the user_updated event
      *
@@ -52,7 +51,7 @@ class block_userprofile_update_observer {
         $userprofileconfig = block_userprofile_update_get_config();
 
         // Get user data.
-        $user = $DB->get_record('user', array('id' => $userid), '*', MUST_EXIST);
+        $user = $DB->get_record('user', ['id' => $userid], '*', MUST_EXIST);
         profile_load_custom_fields($user);
         $partneridfield = $userprofileconfig['profilepartnerid'] ?: 0;
         // Check if user is partner.
@@ -61,9 +60,11 @@ class block_userprofile_update_observer {
             return;
         }
         // Fetch all users of the partner.
-        $partnerusers = block_userprofile_update_get_matchingusers($user->profile[$partneridfield],
-                $userprofileconfig['profilepartnerid'],
-                $user->id);
+        $partnerusers = block_userprofile_update_get_matchingusers(
+            $user->profile[$partneridfield],
+            $userprofileconfig['profilepartnerid'],
+            $user->id
+        );
         // Update user profile fields according to the profile fields of the partner user.
         if (!empty($partnerusers)) {
             foreach ($partnerusers as $partneruser) {

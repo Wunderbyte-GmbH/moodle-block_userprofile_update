@@ -33,14 +33,13 @@ use stdClass;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userprofileupdate {
-
     /**
      * Update user profile fields to match the logged in users profile.
      *
      * @param stdClass $newuser
      * @return stdClass
      */
-    public static function update_userprofile_fields (\stdClass $usernew, ?stdClass $user = null): stdClass {
+    public static function update_userprofile_fields(\stdClass $usernew, ?stdClass $user = null): stdClass {
         global $USER, $DB;
 
         if ($user === null) {
@@ -48,57 +47,73 @@ class userprofileupdate {
         }
         profile_load_custom_fields($user);
         $userprofileconfig = block_userprofile_update_get_config();
-        $createpassword = !empty ($usernew->createpassword);
+        $createpassword = !empty($usernew->createpassword);
+
         // Update partnerid.
-        $field = $userprofileconfig['profilepartnerid'];
-        $fieldid = $DB->get_field('user_info_field', 'id',  ['shortname' => $field]);
-        $data = new stdClass();
-        $data->userid = $usernew->id;
-        $data->fieldid = $fieldid;
-        $data->data = $user->profile[$userprofileconfig['profilepartnerid']];
-        if ($dataid = $DB->get_field('user_info_data', 'id', array('userid' => $usernew->id, 'fieldid' => $fieldid))) {
-            $data->id = $dataid;
-            $DB->update_record('user_info_data', $data);
-        } else {
-            $DB->insert_record('user_info_data', $data);
+        if (!empty($userprofileconfig['profilepartnerid'])) {
+            $field = $userprofileconfig['profilepartnerid'];
+            $fieldid = $DB->get_field('user_info_field', 'id', ['shortname' => $field]);
+            if ($fieldid && isset($user->profile[$field])) {
+                $data = new stdClass();
+                $data->userid = $usernew->id;
+                $data->fieldid = $fieldid;
+                $data->data = $user->profile[$field];
+                if ($dataid = $DB->get_field('user_info_data', 'id', ['userid' => $usernew->id, 'fieldid' => $fieldid])) {
+                    $data->id = $dataid;
+                    $DB->update_record('user_info_data', $data);
+                } else {
+                    $DB->insert_record('user_info_data', $data);
+                }
+            }
         }
+
         // Update tenant.
-        $field = $userprofileconfig['profiletenant'];
-        $fieldid = $DB->get_field('user_info_field', 'id',  ['shortname' => $field]);
-        $data = new stdClass();
-        $data->fieldid = $fieldid;
-        $data->userid = $usernew->id;
-        $data->data = $user->profile[$userprofileconfig['profiletenant']];
-        if ($dataid = $DB->get_field('user_info_data', 'id', array('userid' => $usernew->id, 'fieldid' => $fieldid))) {
-            $data->id = $dataid;
-            $DB->update_record('user_info_data', $data);
-        } else {
-            $DB->insert_record('user_info_data', $data);
+        if (!empty($userprofileconfig['profiletenant'])) {
+            $field = $userprofileconfig['profiletenant'];
+            $fieldid = $DB->get_field('user_info_field', 'id', ['shortname' => $field]);
+            if ($fieldid && isset($user->profile[$field])) {
+                $data = new stdClass();
+                $data->fieldid = $fieldid;
+                $data->userid = $usernew->id;
+                $data->data = $user->profile[$field];
+                if ($dataid = $DB->get_field('user_info_data', 'id', ['userid' => $usernew->id, 'fieldid' => $fieldid])) {
+                    $data->id = $dataid;
+                    $DB->update_record('user_info_data', $data);
+                } else {
+                    $DB->insert_record('user_info_data', $data);
+                }
+            }
         }
+
         // Update partner program / status.
-        $field = $userprofileconfig['profilestatusfield'];
-        $fieldid = $DB->get_field('user_info_field', 'id',  ['shortname' => $field]);
-        $data = new stdClass();
-        $data->fieldid = $fieldid;
-        $data->userid = $usernew->id;
-        $data->data = $user->profile[$userprofileconfig['profilestatusfield']];
-        if ($dataid = $DB->get_field('user_info_data', 'id', array('userid' => $usernew->id, 'fieldid' => $fieldid))) {
-            $data->id = $dataid;
-            $DB->update_record('user_info_data', $data);
-        } else {
-            $DB->insert_record('user_info_data', $data);
+        if (!empty($userprofileconfig['profilestatusfield'])) {
+            $field = $userprofileconfig['profilestatusfield'];
+            $fieldid = $DB->get_field('user_info_field', 'id', ['shortname' => $field]);
+            if ($fieldid && isset($user->profile[$field])) {
+                $data = new stdClass();
+                $data->fieldid = $fieldid;
+                $data->userid = $usernew->id;
+                $data->data = $user->profile[$field];
+                if ($dataid = $DB->get_field('user_info_data', 'id', ['userid' => $usernew->id, 'fieldid' => $fieldid])) {
+                    $data->id = $dataid;
+                    $DB->update_record('user_info_data', $data);
+                } else {
+                    $DB->insert_record('user_info_data', $data);
+                }
+            }
         }
+
         // Update password.
-        unset ($usernew->createpassword);
-        if (empty ($usernew->auth)) {
+        unset($usernew->createpassword);
+        if (empty($usernew->auth)) {
             // User editing self.
             $authplugin = get_auth_plugin($user->auth);
-            unset ($usernew->auth); // Can not change/remove.
+            unset($usernew->auth); // Can not change/remove.
         } else {
             $authplugin = get_auth_plugin($usernew->auth);
         }
         if ($authplugin->is_internal()) {
-            if ($createpassword || empty ($usernew->newpassword)) {
+            if ($createpassword || empty($usernew->newpassword)) {
                 $usernew->password = '';
             } else {
                 $usernew->password = hash_internal_user_password($usernew->newpassword);

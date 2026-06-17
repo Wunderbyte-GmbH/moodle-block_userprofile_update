@@ -17,7 +17,7 @@
 /**
  * Settings page.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -27,53 +27,73 @@
 defined('MOODLE_INTERNAL') || die;
 
 if ($ADMIN->fulltree) {
-    // Group members
-	$name = 'block_userprofile_update/showonlygroupmembers';
-	$setting = new admin_setting_configcheckbox($name, get_string('showonlygroupmembers', 'block_userprofile_update'), get_string('showonlygroupmembersdesc', 'block_userprofile_update'), 0);
-	$settings->add($setting);
-    // Matching users
-	$name = 'block_userprofile_update/showonlymatchingusers';
-	$setting = new admin_setting_configcheckbox($name, get_string('showonlymatchingusers', 'block_userprofile_update'), get_string('showonlymatchingusersdesc', 'block_userprofile_update'), 0);
-	$settings->add($setting);
-    // Define the name of the setting
-    $profile_field_choices = array();
-    $profile_field_choices[''] = get_string('choose'); // Default option
+    // Group members.
+    $name = 'block_userprofile_update/showonlygroupmembers';
+    $setting = new admin_setting_configcheckbox($name, get_string('showonlygroupmembers', 'block_userprofile_update'), get_string('showonlygroupmembersdesc', 'block_userprofile_update'), 0);
+    $settings->add($setting);
+    // Matching users.
+    $name = 'block_userprofile_update/showonlymatchingusers';
+    $setting = new admin_setting_configcheckbox($name, get_string('showonlymatchingusers', 'block_userprofile_update'), get_string('showonlymatchingusersdesc', 'block_userprofile_update'), 0);
+    $settings->add($setting);
+    // Define the name of the setting.
+    $profilefieldchoices = [];
+    $profilefieldchoices[''] = get_string('choose');
+    // Default option.
 
-    // Query the user_info_field table to get the custom profile fields
+    // Query the user_info_field table to get the custom profile fields.
     $profilefields = $DB->get_records('user_info_field');
     foreach ($profilefields as $field) {
-        $profile_field_choices[$field->shortname] = $field->name;
+        $profilefieldchoices[$field->shortname] = $field->name;
     }
 
     $settings->add(new admin_setting_configselect(
-            'block_userprofile_update/selecttenant',
-            get_string('selecttenant', 'block_userprofile_update'),
-            get_string('selecttenant_desc', 'block_userprofile_update'),
-            '',
-            $profile_field_choices // Populate choices dynamically
+        'block_userprofile_update/selecttenant',
+        get_string('selecttenant', 'block_userprofile_update'),
+        get_string('selecttenant_desc', 'block_userprofile_update'),
+        '',
+        $profilefieldchoices
     ));
 
     $settings->add(new admin_setting_configselect(
-            'block_userprofile_update/partnerid',
-            get_string('partnerid', 'block_userprofile_update'),
-            get_string('partnerid_desc', 'block_userprofile_update'),
-            '',
-            $profile_field_choices // Populate choices dynamically
+        'block_userprofile_update/partnerid',
+        get_string('partnerid', 'block_userprofile_update'),
+        get_string('partnerid_desc', 'block_userprofile_update'),
+        '',
+        $profilefieldchoices
     ));
 
     $settings->add(new admin_setting_configselect(
-            'block_userprofile_update/ispartner',
-            get_string('ispartner', 'block_userprofile_update'),
-            get_string('ispartner_desc', 'block_userprofile_update'),
-            '',
-            $profile_field_choices // Populate choices dynamically
+        'block_userprofile_update/ispartner',
+        get_string('ispartner', 'block_userprofile_update'),
+        get_string('ispartner_desc', 'block_userprofile_update'),
+        '',
+        $profilefieldchoices
     ));
     $settings->add(new admin_setting_configselect(
-            'block_userprofile_update/partnerstatus',
-            get_string('partnerstatus', 'block_userprofile_update'),
-            get_string('partnerstatus_desc', 'block_userprofile_update'),
-            '',
-            $profile_field_choices // Populate choices dynamically
+        'block_userprofile_update/partnerstatus',
+        get_string('partnerstatus', 'block_userprofile_update'),
+        get_string('partnerstatus_desc', 'block_userprofile_update'),
+        '',
+        $profilefieldchoices
     ));
+
+    // Automatic email settings.
+    $name = 'block_userprofile_update/useautoemail';
+    $setting = new admin_setting_configcheckbox(
+        $name,
+        get_string('useautoemail', 'block_userprofile_update'),
+        get_string('useautoemail_desc', 'block_userprofile_update'),
+        0
+    );
+    $settings->add($setting);
+
+    $name = 'block_userprofile_update/emailpostfix';
+    $setting = new admin_setting_configtext(
+        $name,
+        get_string('emailpostfix', 'block_userprofile_update'),
+        get_string('emailpostfix_desc', 'block_userprofile_update'),
+        '@example.com',
+        PARAM_TEXT
+    );
+    $settings->add($setting);
 }
-

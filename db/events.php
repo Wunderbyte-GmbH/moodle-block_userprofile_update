@@ -14,7 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-
 /**
  * Register event observers in block_userprofile_update
  *
@@ -30,5 +29,5 @@ $observers = [
         [
                 'eventname' => '\core\event\user_updated',
                 'callback' => 'block_userprofile_update_observer::user_updated',
-        ]
+        ],
 ];

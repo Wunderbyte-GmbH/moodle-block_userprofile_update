@@ -17,7 +17,7 @@
 /**
  * Version information
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -26,7 +26,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2025072102;
+$plugin->version = 2026061700;
 $plugin->release = 'v1.9';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'block_userprofile_update';

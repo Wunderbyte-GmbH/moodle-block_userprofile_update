@@ -17,7 +17,7 @@
 /**
  * Handles viewing the certificates for a certain user.
  *
- * @package    mod_customcert
+ * @package    block_userprofile_update
  * @copyright  based on 2016 Mark Nelson <markn@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
@@ -54,12 +54,6 @@ if ($courseid) {
 
 // Check that we have a valid user.
 $user = \core_user::get_user($userid, '*', MUST_EXIST);
-//$coursecontext = CONTEXT_COURSE::instance($courseid);
-
-// If we are viewing certificates that are not for the currently logged in user then do a capability check.
-// if (($userid != $USER->id) && !has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
-//     throw new moodle_exception('You are not allowed to view these certificates');
-// }
 
 $profilefieldpartnerid = get_config('block_userprofile_update', 'partnerid');
 profile_load_custom_fields($USER);

@@ -17,7 +17,7 @@
 /**
  * Block base class.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -25,7 +25,6 @@
  */
 
 class block_userprofile_update extends block_base {
-
     /**
      * @var string name of the block
      */
@@ -37,11 +36,11 @@ class block_userprofile_update extends block_base {
     }
 
     public function applicable_formats() {
-        return array(
+        return [
             'all' => false,
             'course-view' => true,
-            'site' => true
-        );
+            'site' => true,
+        ];
     }
 
     public function get_content() {

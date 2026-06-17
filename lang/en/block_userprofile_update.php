@@ -17,39 +17,38 @@
 /**
  * En language file for the plugin.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-$string['pluginname'] = 'Userprofile update';
-$string['title'] = 'Userprofile update';
-
-$string['userprofile_update:addinstance'] = 'Add userprofile update block';
-$string['userprofile_update:updateuserprofile'] = 'Update user profiles';
-$string['userprofile_update:createuser'] = 'Create new user';
-$string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
-
+$string['canmanageusers'] = 'Can create and manage employees';
+$string['emailpostfix'] = 'Email postfix';
+$string['emailpostfix_desc'] = 'The domain or postfix to append to usernames for automatic email generation (e.g., @example.com)';
 $string['eventuserprofile_updated'] = 'User profile has been updated';
+$string['ispartner'] = 'Is Partner';
+$string['ispartner_desc'] = 'Select a custom user profile field to determine if the user is a partner.';
+$string['partnerid'] = 'Partner ID';
+$string['partnerid_desc'] = 'Select a custom user profile field where the partner IDs are defined.';
+$string['partnerstatus'] = 'Status of the partner';
+$string['partnerstatus_desc'] = 'Choose the field for programme where the status of the partner is saved';
+$string['pluginname'] = 'Userprofile update';
+$string['selecttenant'] = 'Select user profile field tu user for tenant';
+$string['selecttenant_desc'] = 'Choose a custom user profile field where the avaible tenants are defined.
+ You have to create it in /user/profile/index.php before you can select it here. It should be a dropdown list with the
+ name of all available tenants.';
 $string['showonlygroupmembers'] = 'Show only users that are members of the same group of the current user';
 $string['showonlygroupmembersdesc'] = 'Allow editing and viewing of users belonging to the same group as the editing user only';
 $string['showonlymatchingusers'] = 'Show only users that have the same tenant name in the tenant profile field of the current user';
 $string['showonlymatchingusersdesc'] = 'Allow editing of users only for users who have the same tenant name in the profilefield
  that you have chosen to be the tenant profile field.';
+$string['title'] = 'Userprofile update';
 
-$string['selecttenant'] = 'Select user profile field tu user for tenant';
-$string['selecttenant_desc'] = 'Choose a custom user profile field where the avaible tenants are defined.
- You have to create it in /user/profile/index.php before you can select it here. It should be a dropdown list with the
- name of all available tenants.';
-
-$string['partnerid'] = 'Partner ID';
-$string['partnerid_desc'] = 'Select a custom user profile field where the partner IDs are defined.';
-
-$string['ispartner'] = 'Is Partner';
-$string['ispartner_desc'] = 'Select a custom user profile field to determine if the user is a partner.';
-$string['partnerstatus'] = 'Status of the partner';
-$string['partnerstatus_desc'] = 'Choose the field for programme where the status of the partner is saved';
-
+$string['useautoemail'] = 'Use automatic email generation';
+$string['useautoemail_desc'] = 'Enable automatic email address generation based on username and email postfix';
 $string['usermanager'] = 'Employee manager';
-$string['canmanageusers'] = 'Can create and manage employees';
+$string['userprofile_update:addinstance'] = 'Add userprofile update block';
+$string['userprofile_update:createuser'] = 'Create new user';
+$string['userprofile_update:suspenduser'] = 'Nutzerkonto sperren';
+$string['userprofile_update:updateuserprofile'] = 'Update user profiles';

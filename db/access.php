@@ -17,7 +17,7 @@
 /**
  * Defines capabilities for the plugin.
  *
- * @package    block
+ * @package    block_userprofile_update
  * @subpackage userprofile_update
  * @author     David Bogner
  * @copyright  2023 Wunderbyte GmbH <info@wunderbyte.at>
@@ -26,29 +26,29 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$capabilities = array(
-    'block/userprofile_update:addinstance' => array(
+$capabilities = [
+    'block/userprofile_update:addinstance' => [
         'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_BLOCK,
-        'archetypes' => array()
-    ),
-    'block/userprofile_update:updateuserprofile' => array(
+        'archetypes' => [],
+    ],
+    'block/userprofile_update:updateuserprofile' => [
         'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array()
-    ),
-    'block/userprofile_update:createuser' => array(
+        'archetypes' => [],
+    ],
+    'block/userprofile_update:createuser' => [
         'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array()
-    ),
-    'block/userprofile_update:suspenduser' => array(
+        'archetypes' => [],
+    ],
+    'block/userprofile_update:suspenduser' => [
         'riskbitmask' => RISK_PERSONAL, RISK_DATALOSS, RISK_SPAM,
         'captype' => 'write',
         'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => array()
-    ),
-);
+        'archetypes' => [],
+    ],
+];
