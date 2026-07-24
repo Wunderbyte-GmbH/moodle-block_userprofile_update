@@ -92,7 +92,18 @@ class block_userprofile_update_form extends moodleform {
         $mform->setType('newpassword', PARAM_RAW);
 
         profile_load_custom_fields($USER);
-        $partnerfield = get_config('block_userprofile_update', 'ispartner');
+        $edituser = $DB->get_record('user', ['id' => $userid]);
+        if ($edituser) {
+            profile_load_custom_fields($edituser);
+
+            $mform->addElement('text', 'profile_field_personalnummer', 'Personalnummer');
+            $mform->setType('profile_field_personalnummer', PARAM_TEXT);
+
+            $mform->setDefault(
+                'profile_field_personalnummer',
+                $edituser->profile['personalnummer'] ?? ''
+            );
+        }
         if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "1")) {
             $mform->addElement('advcheckbox', 'usermanager', get_string('usermanager', 'block_userprofile_update'),
                     get_string('canmanageusers', 'block_userprofile_update'), array('group' => 1), array(0, 1));

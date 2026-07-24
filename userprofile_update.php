@@ -392,6 +392,11 @@ if ($confirmuser && confirm_sesskey()) {
     } else {
         $usernew = userprofileupdate::update_userprofile_fields($usernew);
         $DB->update_record('user', $usernew);
+        // Save custom profile fields
+        $fields = profile_get_user_fields_with_data($usernew->id);
+        foreach ($fields as $formfield) {
+            $formfield->edit_save_data($usernew);
+        }
     }
 
     // Reload from db.
@@ -462,6 +467,7 @@ foreach ($columns as $column) {
 }
 
 // Add action columns.
+$namedcolumns['personalnummer']  = 'Personalnummer';
 $namedcolumns['edit'] = get_string('edit');
 $namedcolumns['suspend']  = get_string('suspenduser', 'admin');
 $namedcolumns['cert']  = get_string('certificate', 'mod_customcert');
@@ -724,17 +730,19 @@ if (!$users) {
             $strlastaccess = get_string('never');
         }
         $fullname = fullname($user, true);
-        profile_load_data($user);
-
+        profile_load_custom_fields($user);
         $row = array();
         $row [] = $user->firstname;
         $row [] = $user->lastname;
         /* "<a href=\"../../user/view.php?id=$user->id&amp;course=$courseid\">$user->firstname $user->lastname</a>"; */
         foreach ($extracolumns as $field) {
-            $row [] = $user->$field;
+            $row [] = $user->$field ?? '';
         }
         $row [] = $user->city;
         $row [] = $user->country;
+        $row [] = isset($user->profile['personalnummer'])
+                ? $user->profile['personalnummer']
+                : '';
         // phpcs:ignore Squiz.PHP.CommentedOutCode.Found
         /*$row [] = $strlastaccess; */
         if ($user->suspended) {

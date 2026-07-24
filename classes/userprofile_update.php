@@ -75,19 +75,6 @@ class userprofileupdate {
         } else {
             $DB->insert_record('user_info_data', $data);
         }
-        // Update partner program / status.
-        $field = $userprofileconfig['profilestatusfield'];
-        $fieldid = $DB->get_field('user_info_field', 'id',  ['shortname' => $field]);
-        $data = new stdClass();
-        $data->fieldid = $fieldid;
-        $data->userid = $usernew->id;
-        $data->data = $user->profile[$userprofileconfig['profilestatusfield']];
-        if ($dataid = $DB->get_field('user_info_data', 'id', array('userid' => $usernew->id, 'fieldid' => $fieldid))) {
-            $data->id = $dataid;
-            $DB->update_record('user_info_data', $data);
-        } else {
-            $DB->insert_record('user_info_data', $data);
-        }
         // Update password.
         unset ($usernew->createpassword);
         if (empty ($usernew->auth)) {
