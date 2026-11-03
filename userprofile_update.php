@@ -399,11 +399,16 @@ if ($confirmuser && confirm_sesskey()) {
         }
     }
 
+    // Only force a password change if a password was actually set.
+    $forcepasswordchange = $usercreated || !empty($usernew->newpassword);
+
     // Reload from db.
     $usernew = $DB->get_record('user', array(
         'id' => $usernew->id
     ));
-    set_user_preference('auth_forcepasswordchange', 1, $usernew);
+    if ($forcepasswordchange) {
+        set_user_preference('auth_forcepasswordchange', 1, $usernew);
+    }
 
     if ($usercreated) {
         \core\event\user_created::create_from_userid($usernew->id)->trigger();

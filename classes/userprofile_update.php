@@ -78,17 +78,20 @@ class userprofileupdate {
         // Update password.
         unset ($usernew->createpassword);
         if (empty ($usernew->auth)) {
-            // User editing self.
-            $authplugin = get_auth_plugin($user->auth);
+            // Auth is not part of the form: Use the auth method of the edited user, not the one of the editor.
+            $authplugin = get_auth_plugin($DB->get_field('user', 'auth', ['id' => $usernew->id]));
             unset ($usernew->auth); // Can not change/remove.
         } else {
             $authplugin = get_auth_plugin($usernew->auth);
         }
         if ($authplugin->is_internal()) {
-            if ($createpassword || empty ($usernew->newpassword)) {
+            if (!empty($usernew->newpassword)) {
+                $usernew->password = hash_internal_user_password($usernew->newpassword);
+            } else if ($createpassword) {
                 $usernew->password = '';
             } else {
-                $usernew->password = hash_internal_user_password($usernew->newpassword);
+                // No new password entered: Keep the existing one.
+                unset($usernew->password);
             }
         } else {
             $usernew->password = AUTH_PASSWORD_NOT_CACHED;
