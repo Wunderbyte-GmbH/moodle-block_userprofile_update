@@ -94,10 +94,9 @@ class userprofileupdate {
             $usernew->password = AUTH_PASSWORD_NOT_CACHED;
         }
         // Update usermanager: The admin can assign an employee to manage users. It is saved in user profile department.
-        if (isset($usernew->usermanager) && $usernew->usermanager === "1") {
-            $usernew->department = "usermanager";
-        } else {
-            $usernew->department = "";
+        // The checkbox is not shown to every editor: Without a submitted value the existing assignment stays untouched.
+        if (isset($usernew->usermanager)) {
+            $usernew->department = $usernew->usermanager === "1" ? "usermanager" : "";
         }
         return $usernew;
     }

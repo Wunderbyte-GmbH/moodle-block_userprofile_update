@@ -104,7 +104,8 @@ class block_userprofile_update_form extends moodleform {
                 $edituser->profile['personalnummer'] ?? ''
             );
         }
-        if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "1")) {
+        $partnerfield = get_config('block_userprofile_update', 'ispartner');
+        if (!($USER->department === "usermanager") || (($USER->profile[$partnerfield] ?? '') === "1")) {
             $mform->addElement('advcheckbox', 'usermanager', get_string('usermanager', 'block_userprofile_update'),
                     get_string('canmanageusers', 'block_userprofile_update'), array('group' => 1), array(0, 1));
             $mform->setDefault('usermanager', $usermanager);

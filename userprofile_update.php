@@ -514,23 +514,15 @@ if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)
         $matchingusers = block_userprofile_update_get_matchingusers($userprofileconfig['partnerid'],
                 $userprofileconfig['profilepartnerid'],
                 $USER->id);
-        $tenantpartnerids = block_userprofile_update_get_tenant_partners();
-        foreach ($tenantpartnerids as $userid) {
-            if (isset($matchingusers[$userid])) {
-                unset($matchingusers[$userid]);
-            }
-        }
-        // Remove partner admin from list, if user is an employee allowed to create users.
-        profile_load_custom_fields($USER);
-        $partnerfield = get_config('block_userprofile_update', 'ispartner');
-        if (!($USER->department === "usermanager") || ($USER->profile[$partnerfield] === "0")) {
-            // Unset user who is partner.
-            unset($matchingusers[$USER->id]);
-        }
+        // Always list the complete team, so that managers can stand in for each other.
         if (!empty ($matchingusers)) {
             foreach ($matchingusers as $id => $value) {
                 $allmembers[$id] = $id;
             }
+        }
+        // The query excludes partners themselves, but they are part of the team too.
+        if (!empty($userprofileconfig['partnerid'])) {
+            $allmembers[$USER->id] = $USER->id;
         }
     }
 }
@@ -690,8 +682,8 @@ if (!$users) {
 
         // Edit button.
         if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
-            // Prevent editing of admins by non-admins.
-            if (is_siteadmin($USER) || !is_siteadmin($user)) {
+            // Prevent editing of admins by non-admins. Own row is listed for information only.
+            if (is_siteadmin($USER) || (!is_siteadmin($user) && $user->id != $USER->id)) {
                 $buttons ['edit'] = html_writer::link(new moodle_url ($url->out(), array(
                     'userid' => $user->id
                 )), html_writer::empty_tag('img', array(
