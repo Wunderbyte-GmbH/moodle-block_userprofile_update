@@ -94,7 +94,10 @@ $strunsuspend = get_string('unsuspenduser', 'admin');
 $strunlock = get_string('unlockaccount', 'admin');
 $strconfirm = get_string('confirm');
 if ($userid > 0) {
-    $user = core_user::get_user($userid);
+    $user = core_user::get_user($userid, '*', MUST_EXIST);
+    if (!block_userprofile_update_can_manage_user($user)) {
+        throw new moodle_exception('nopermissions', 'error', '', get_string('edit'));
+    }
     $usermanager = 0;
     if ($user->department === 'usermanager') {
         $usermanager = 1;
@@ -246,7 +249,8 @@ if ($confirmuser && confirm_sesskey()) {
         'mnethostid' => $CFG->mnet_localhost_id,
         'deleted' => 0
     ))) {
-        if (!is_siteadmin($user) && $USER->id != $user->id && $user->suspended != 1) {
+        if (!is_siteadmin($user) && $USER->id != $user->id && $user->suspended != 1
+                && block_userprofile_update_can_manage_user($user)) {
             $user->suspended = 1;
             $user->timemodified = time();
             $DB->set_field('user', 'suspended', $user->suspended, array(
@@ -269,7 +273,7 @@ if ($confirmuser && confirm_sesskey()) {
         'mnethostid' => $CFG->mnet_localhost_id,
         'deleted' => 0
     ))) {
-        if ($user->suspended != 0) {
+        if ($user->suspended != 0 && block_userprofile_update_can_manage_user($user)) {
             $user->suspended = 0;
             $user->timemodified = time();
             $DB->set_field('user', 'suspended', $user->suspended, array(
@@ -627,8 +631,10 @@ if (!$users) {
             ));
         }
 
+        $canmanageuser = block_userprofile_update_can_manage_user($user);
+
         // Suspend button.
-        if (has_capability('block/userprofile_update:suspenduser', $coursecontext)) {
+        if ($canmanageuser && has_capability('block/userprofile_update:suspenduser', $coursecontext)) {
             if (is_mnet_remote_user($user)) {
                 // Mnet users have special access control, they can not be deleted the standard way or suspended.
                 $accessctrl = 'allow';
@@ -686,7 +692,7 @@ if (!$users) {
         }
 
         // Edit button.
-        if (has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
+        if ($canmanageuser && has_capability('block/userprofile_update:updateuserprofile', $coursecontext)) {
             // Prevent editing of admins by non-admins. Own row is listed for information only.
             if (is_siteadmin($USER) || (!is_siteadmin($user) && $user->id != $USER->id)) {
                 $buttons ['edit'] = html_writer::link(new moodle_url ($url->out(), array(

@@ -83,6 +83,27 @@ function block_userprofile_update_get_matchingusers(string $partnerid,
 }
 
 /**
+ * Check if the current $USER may edit or suspend the given user.
+ * Partners are listed for everyone in the team, but only other partners and admins may change them.
+ *
+ * @param stdClass $target the user to be changed
+ * @return bool
+ */
+function block_userprofile_update_can_manage_user(stdClass $target): bool {
+    global $USER;
+    if (has_capability('moodle/site:config', context_system::instance())) {
+        return true;
+    }
+    $partnerfield = get_config('block_userprofile_update', 'ispartner');
+    profile_load_custom_fields($USER);
+    if (($USER->profile[$partnerfield] ?? '') === "1") {
+        return true;
+    }
+    profile_load_custom_fields($target);
+    return ($target->profile[$partnerfield] ?? '') !== "1";
+}
+
+/**
  * Get partner from tennant of current $USER.
  * @return array of userids
  */
